@@ -51,25 +51,25 @@
  *	P_32_SWAP	swap a referenced memory location
  *	P_32_COPY	swap from one location to another
  */
-#define	M_32_SWAP(a) {							\
-	uint32_t _tmp = a;						\
-	((char *)&a)[0] = ((char *)&_tmp)[3];				\
-	((char *)&a)[1] = ((char *)&_tmp)[2];				\
-	((char *)&a)[2] = ((char *)&_tmp)[1];				\
-	((char *)&a)[3] = ((char *)&_tmp)[0];				\
+#define	M_32_SWAP(a) {				\
+	uint32_t _tmp = a;			\
+	((char *)&a)[0] = ((char *)&_tmp)[3];	\
+	((char *)&a)[1] = ((char *)&_tmp)[2];	\
+	((char *)&a)[2] = ((char *)&_tmp)[1];	\
+	((char *)&a)[3] = ((char *)&_tmp)[0];	\
 }
-#define	P_32_SWAP(a) {							\
-	uint32_t _tmp = *(uint32_t *)a;					\
-	((char *)a)[0] = ((char *)&_tmp)[3];				\
-	((char *)a)[1] = ((char *)&_tmp)[2];				\
-	((char *)a)[2] = ((char *)&_tmp)[1];				\
-	((char *)a)[3] = ((char *)&_tmp)[0];				\
+#define	P_32_SWAP(a) {				\
+	uint32_t _tmp = *(uint32_t *)a;		\
+	((char *)a)[0] = ((char *)&_tmp)[3];	\
+	((char *)a)[1] = ((char *)&_tmp)[2];	\
+	((char *)a)[2] = ((char *)&_tmp)[1];	\
+	((char *)a)[3] = ((char *)&_tmp)[0];	\
 }
-#define	P_32_COPY(a, b) {						\
-	((char *)&(b))[0] = ((char *)&(a))[3];				\
-	((char *)&(b))[1] = ((char *)&(a))[2];				\
-	((char *)&(b))[2] = ((char *)&(a))[1];				\
-	((char *)&(b))[3] = ((char *)&(a))[0];				\
+#define	P_32_COPY(a, b) {			\
+	((char *)&(b))[0] = ((char *)&(a))[3];	\
+	((char *)&(b))[1] = ((char *)&(a))[2];	\
+	((char *)&(b))[2] = ((char *)&(a))[1];	\
+	((char *)&(b))[3] = ((char *)&(a))[0];	\
 }
 
 /*
@@ -77,14 +77,14 @@
  *	M_16_SWAP	swap a memory location
  *	P_16_COPY	swap from one location to another
  */
-#define	M_16_SWAP(a) {							\
-	uint16_t _tmp = a;						\
-	((char *)&a)[0] = ((char *)&_tmp)[1];				\
-	((char *)&a)[1] = ((char *)&_tmp)[0];				\
+#define	M_16_SWAP(a) {				\
+	uint16_t _tmp = a;			\
+	((char *)&a)[0] = ((char *)&_tmp)[1];	\
+	((char *)&a)[1] = ((char *)&_tmp)[0];	\
 }
-#define	P_16_COPY(a, b) {						\
-	((char *)&(b))[0] = ((char *)&(a))[1];				\
-	((char *)&(b))[1] = ((char *)&(a))[0];				\
+#define	P_16_COPY(a, b) {			\
+	((char *)&(b))[0] = ((char *)&(a))[1];	\
+	((char *)&(b))[1] = ((char *)&(a))[0];	\
 }
 
 __BEGIN_HIDDEN_DECLS

@@ -46,36 +46,36 @@
 #include "../internal/db.h"
 #include "extern.h"
 
-#define MAXIMUM(a, b)	(((a) > (b)) ? (a) : (b))
+#define MAXIMUM(a, b) (((a) > (b)) ? (a) : (b))
 
-static int   alloc_segs(HTAB *, int);
-static int   flush_meta(HTAB *);
-static int   hash_access(HTAB *, ACTION, DBT *, DBT *);
-static int   hash_close(DB *);
-static int   hash_delete(const DB *, const DBT *, uint32_t);
-static int   hash_fd(const DB *);
-static int   hash_get(const DB *, const DBT *, DBT *, uint32_t);
-static int   hash_put(const DB *, DBT *, const DBT *, uint32_t);
+static int alloc_segs(HTAB *, int);
+static int flush_meta(HTAB *);
+static int hash_access(HTAB *, ACTION, DBT *, DBT *);
+static int hash_close(DB *);
+static int hash_delete(const DB *, const DBT *, uint32_t);
+static int hash_fd(const DB *);
+static int hash_get(const DB *, const DBT *, DBT *, uint32_t);
+static int hash_put(const DB *, DBT *, const DBT *, uint32_t);
 static void *hash_realloc(SEGMENT **, int, int);
-static int   hash_seq(const DB *, DBT *, DBT *, uint32_t);
-static int   hash_sync(const DB *, uint32_t);
-static int   hdestroy(HTAB *);
+static int hash_seq(const DB *, DBT *, DBT *, uint32_t);
+static int hash_sync(const DB *, uint32_t);
+static int hdestroy(HTAB *);
 static HTAB *init_hash(HTAB *, const char *, const HASHINFO *);
-static int   init_htab(HTAB *, int);
+static int init_htab(HTAB *, int);
 #if BYTE_ORDER == LITTLE_ENDIAN
-static void  swap_header(HTAB *);
-static void  swap_header_copy(HASHHDR *, HASHHDR *);
+static void swap_header(HTAB *);
+static void swap_header_copy(HASHHDR *, HASHHDR *);
 #endif
 
 /* Fast arithmetic, relying on powers of 2, */
-#define MOD(x, y)		((x) & ((y) - 1))
+#define MOD(x, y) ((x) & ((y) - 1))
 
-#define RETURN_ERROR(ERR, LOC)	{ save_errno = ERR; goto LOC; }
+#define RETURN_ERROR(ERR, LOC) { save_errno = ERR; goto LOC; }
 
 /* Return values */
-#define	SUCCESS	 (0)
-#define	ERROR	(-1)
-#define	ABNORMAL (1)
+#define SUCCESS (0)
+#define ERROR (-1)
+#define ABNORMAL (1)
 
 #ifdef HASH_STATISTICS
 int hash_accesses, hash_collisions, hash_expansions, hash_overflows;
@@ -86,7 +86,7 @@ int hash_accesses, hash_collisions, hash_expansions, hash_overflows;
 
 DB *
 __hash_open(const char *file, int flags, int mode,
-    const HASHINFO *info,	/* Special directives for create */
+    const HASHINFO *info, /* Special directives for create */
     int dflags)
 {
 	HTAB *hashp;
@@ -394,7 +394,7 @@ hdestroy(HTAB *hashp)
 	if (__buf_free(hashp, 1, hashp->save_file))
 		save_errno = errno;
 	if (hashp->dir) {
-		free(*hashp->dir);	/* Free initial segments */
+		free(*hashp->dir); /* Free initial segments */
 		/* Free extra segments */
 		while (hashp->exsegs--)
 			free(hashp->dir[--hashp->nsegs]);
@@ -419,6 +419,7 @@ hdestroy(HTAB *hashp)
 	}
 	return SUCCESS;
 }
+
 /*
  * Write modified pages to disk
  *
@@ -532,7 +533,7 @@ hash_put(const DB *dbp, DBT *key, const DBT *data, uint32_t flag)
 
 static int
 hash_delete(const DB *dbp, const DBT *key,
-    uint32_t flag)		/* Ignored */
+    uint32_t flag) /* Ignored */
 {
 	HTAB *hashp;
 
@@ -608,7 +609,7 @@ hash_access(HTAB *hashp, ACTION action, DBT *key, DBT *val)
 				    __find_last_page(hashp, &bufp))) {
 					ndx = 0;
 					rbufp = bufp;
-					break;	/* FOR */
+					break; /* FOR */
 				}
 				rbufp = __get_buf(hashp, pageno, bufp, 0);
 				if (!rbufp) {
@@ -834,6 +835,7 @@ hash_realloc(SEGMENT **p_ptr, int oldsize, int newsize)
 		free(*p_ptr);
 		*p_ptr = p;
 	}
+
 	return p;
 }
 

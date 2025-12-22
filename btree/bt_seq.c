@@ -149,7 +149,7 @@ __bt_seqset(BTREE *t, EPG *ep, DBT *key, int flags)
 	 * been found.
 	 */
 	switch (flags) {
-	case R_CURSOR:				/* Keyed scan. */
+	case R_CURSOR: /* Keyed scan. */
 		/*
 		 * Find the first instance of the key or the smallest key
 		 * which is greater than or equal to the specified key.
@@ -159,7 +159,7 @@ __bt_seqset(BTREE *t, EPG *ep, DBT *key, int flags)
 			return RET_ERROR;
 		}
 		return __bt_first(t, key, ep, &exact);
-	case R_FIRST:				/* First record. */
+	case R_FIRST: /* First record. */
 	case R_NEXT:
 		/* Walk down the left-hand side of the tree. */
 		for (pg = P_ROOT;;) {
@@ -180,7 +180,7 @@ __bt_seqset(BTREE *t, EPG *ep, DBT *key, int flags)
 		ep->page = h;
 		ep->index = 0;
 		break;
-	case R_LAST:				/* Last record. */
+	case R_LAST: /* Last record. */
 	case R_PREV:
 		/* Walk down the right-hand side of the tree. */
 		for (pg = P_ROOT;;) {
@@ -255,7 +255,7 @@ __bt_seqadv(BTREE *t, EPG *ep, int flags)
 	 * it.  The cursor may not be moved until a new key has been found.
 	 */
 	switch (flags) {
-	case R_NEXT:			/* Next record. */
+	case R_NEXT: /* Next record. */
 		/*
 		 * The cursor was deleted in duplicate records, and moved
 		 * forward to a record that has yet to be returned.  Clear
@@ -274,14 +274,15 @@ __bt_seqadv(BTREE *t, EPG *ep, int flags)
 			idx = 0;
 		}
 		break;
-	case R_PREV:			/* Previous record. */
+	case R_PREV: /* Previous record. */
 		/*
 		 * The cursor was deleted in duplicate records, and moved
 		 * backward to a record that has yet to be returned.  Clear
 		 * that flag, and return the record.
 		 */
 		if (F_ISSET(c, CURS_BEFORE)) {
-usecurrent:		F_CLR(c, CURS_AFTER | CURS_BEFORE);
+usecurrent:
+			F_CLR(c, CURS_AFTER | CURS_BEFORE);
 			ep->page = h;
 			ep->index = c->pg.index;
 			return RET_SUCCESS;

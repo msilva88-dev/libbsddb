@@ -61,7 +61,7 @@
 #endif
 #include "extern.h"
 
-#define MINIMUM(a, b)	(((a) < (b)) ? (a) : (b))
+#define MINIMUM(a, b) (((a) < (b)) ? (a) : (b))
 
 static int collect_key(HTAB *, BUFHEAD *, int, DBT *, int);
 static int collect_data(HTAB *, BUFHEAD *, int, int);
@@ -83,7 +83,7 @@ __big_insert(HTAB *hashp, BUFHEAD *bufp, const DBT *key, const DBT *val)
 	uint16_t space, move_bytes, off;
 	char *cp, *key_data, *val_data;
 
-	cp = bufp->page;		/* Character pointer of p. */
+	cp = bufp->page; /* Character pointer of p. */
 	p = (uint16_t *)cp;
 
 	key_data = (char *)key->data;
@@ -131,7 +131,7 @@ __big_insert(HTAB *hashp, BUFHEAD *bufp, const DBT *key, const DBT *val)
 				FREESPACE(p) = FREESPACE(p) - move_bytes;
 				OFFSET(p) = off;
 			} else {
-			toolarge:
+toolarge:
 				p[n - 2] = FULL_KEY;
 			}
 		}
@@ -215,7 +215,7 @@ __big_delete(HTAB *hashp, BUFHEAD *bufp)
 			__free_ovflpage(hashp, last_bfp);
 		last_bfp = rbufp;
 		if (!rbufp)
-			return -1;		/* Error. */
+			return -1; /* Error. */
 		bp = (uint16_t *)rbufp->page;
 	}
 
@@ -254,6 +254,7 @@ __big_delete(HTAB *hashp, BUFHEAD *bufp)
 	hashp->NKEYS--;
 	return 0;
 }
+
 /*
  * Returns:
  *  0 = key not found
@@ -332,7 +333,7 @@ __find_last_page(HTAB *hashp, BUFHEAD **bpp)
 		pageno = bp[n - 1];
 		bufp = __get_buf(hashp, pageno, bufp, 0);
 		if (!bufp)
-			return 0;	/* Need to indicate an error! */
+			return 0; /* Need to indicate an error! */
 		bp = (uint16_t *)bufp->page;
 	}
 
@@ -396,8 +397,8 @@ __big_return(HTAB *hashp, BUFHEAD *bufp, int ndx, DBT *val, int set_current)
 			val->data = (unsigned char *)tp + off;
 			val->size = bp[1] - off;
 			if (set_current) {
-				if (bp[0] == 2) {	/* No more buckets in
-							 * chain */
+				if (bp[0] == 2) { /* No more buckets in
+						   * chain */
 					hashp->cpage = NULL;
 					hashp->cbucket++;
 					hashp->cndx = 1;
@@ -422,7 +423,7 @@ __big_return(HTAB *hashp, BUFHEAD *bufp, int ndx, DBT *val, int set_current)
 		return -1;
 	if (save_p->addr != save_addr) {
 		/* We are pretty short on buffers. */
-		errno = EINVAL;			/* OUT OF BUFFERS */
+		errno = EINVAL; /* OUT OF BUFFERS */
 		return -1;
 	}
 	memmove(hashp->tmp_buf, (save_p->page) + off, len);
@@ -447,14 +448,14 @@ collect_data(HTAB *hashp, BUFHEAD *bufp, int len, int set)
 	mylen = hashp->BSIZE - bp[1];
 	save_addr = bufp->addr;
 
-	if (bp[2] == FULL_KEY_DATA) {		/* End of Data */
+	if (bp[2] == FULL_KEY_DATA) { /* End of Data */
 		totlen = len + mylen;
 		free(hashp->tmp_buf);
 		if ((hashp->tmp_buf = (char *)malloc(totlen)) == NULL)
 			return -1;
 		if (set) {
 			hashp->cndx = 1;
-			if (bp[0] == 2) {	/* No more buckets in chain */
+			if (bp[0] == 2) { /* No more buckets in chain */
 				hashp->cpage = NULL;
 				hashp->cbucket++;
 			} else {
@@ -475,7 +476,7 @@ collect_data(HTAB *hashp, BUFHEAD *bufp, int len, int set)
 			return -1;
 	}
 	if (bufp->addr != save_addr) {
-		errno = EINVAL;			/* Out of buffers. */
+		errno = EINVAL; /* Out of buffers. */
 		return -1;
 	}
 	memmove(&hashp->tmp_buf[len], (bufp->page) + bp[1], mylen);
@@ -513,7 +514,7 @@ collect_key(HTAB *hashp, BUFHEAD *bufp, int len, DBT *val, int set)
 
 	save_addr = bufp->addr;
 	totlen = len + mylen;
-	if (bp[2] == FULL_KEY || bp[2] == FULL_KEY_DATA) {    /* End of Key. */
+	if (bp[2] == FULL_KEY || bp[2] == FULL_KEY_DATA) { /* End of Key. */
 		free(hashp->tmp_key);
 		if ((hashp->tmp_key = (char *)malloc(totlen)) == NULL)
 			return -1;
@@ -526,7 +527,7 @@ collect_key(HTAB *hashp, BUFHEAD *bufp, int len, DBT *val, int set)
 			return -1;
 	}
 	if (bufp->addr != save_addr) {
-		errno = EINVAL;		/* MIS -- OUT OF BUFFERS */
+		errno = EINVAL; /* MIS -- OUT OF BUFFERS */
 		return -1;
 	}
 	memmove(&hashp->tmp_key[len], (bufp->page) + bp[1], mylen);
@@ -581,7 +582,7 @@ __big_split(HTAB *hashp,
 	    "BIG_SPLIT: %d->ovfl was %d is now %d\n", tmpp->addr,
 	    (tmpp->ovfl ? tmpp->ovfl->addr : 0), (bp ? bp->addr : 0));
 #endif
-	tmpp->ovfl = bp;	/* one of op/np point to big_keyp */
+	tmpp->ovfl = bp; /* one of op/np point to big_keyp */
 	tp = (uint16_t *)tmpp->page;
 #ifdef DEBUG
 	assert(FREESPACE(tp) >= OVFLSIZE);

@@ -98,8 +98,9 @@ __rec_search(BTREE *t, recno_t recno, enum SRCHOP op)
 		}
 
 	}
+err:
 	/* Try and recover the tree. */
-err:	sverrno = errno;
+	sverrno = errno;
 	if (op != SEARCH)
 		while  ((parent = BT_POP(t)) != NULL) {
 			if ((h = mpool_get(t->bt_mp, parent->pgno, 0)) == NULL)

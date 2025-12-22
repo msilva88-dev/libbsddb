@@ -111,7 +111,8 @@ __bt_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 	dflags = 0;
 	if (key->size + data->size > t->bt_ovflsize) {
 		if (key->size > t->bt_ovflsize) {
-storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
+storekey:
+			if (__ovfl_put(t, key, &pg) == RET_ERROR)
 				return RET_ERROR;
 			tkey.data = kb;
 			tkey.size = NOVFLSIZE;
@@ -176,7 +177,8 @@ storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
 		 * Note, the delete may empty the page, so we need to put a
 		 * new entry into the page immediately.
 		 */
-delete:		if (__bt_dleaf(t, key, h, idx) == RET_ERROR) {
+delete:
+		if (__bt_dleaf(t, key, h, idx) == RET_ERROR) {
 			mpool_put(t->bt_mp, h, 0);
 			return RET_ERROR;
 		}

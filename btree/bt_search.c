@@ -117,7 +117,8 @@ __bt_search(BTREE *t, const DBT *key, int *exactp)
 		 */
 		idx = base ? base - 1 : base;
 
-next:		BT_PUSH(t, h->pgno, idx);
+next:
+		BT_PUSH(t, h->pgno, idx);
 		pg = GETBINTERNAL(h, idx)->pgno;
 		mpool_put(t->bt_mp, h, 0);
 	}

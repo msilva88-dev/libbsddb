@@ -91,7 +91,8 @@ __rec_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 		nrec = t->bt_nrecs;
 		break;
 	default:
-einval:		errno = EINVAL;
+einval:
+		errno = EINVAL;
 		return RET_ERROR;
 	}
 

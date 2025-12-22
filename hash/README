@@ -1,5 +1,3 @@
-#	$OpenBSD: README,v 1.5 2022/12/27 17:10:06 jmc Exp $
-
 This package implements a superset of the hsearch and dbm/ndbm libraries.
 
 Test Programs:

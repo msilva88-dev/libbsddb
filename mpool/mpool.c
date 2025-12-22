@@ -44,7 +44,7 @@
 
 static BKT *mpool_bkt(MPOOL *);
 static BKT *mpool_look(MPOOL *, pgno_t);
-static int  mpool_write(MPOOL *, BKT *);
+static int mpool_write(MPOOL *, BKT *);
 
 /*
  * mpool_open --
@@ -95,7 +95,7 @@ mpool_filter(MPOOL *mp, void (*pgin) (void *, pgno_t, void *),
 	mp->pgout = pgout;
 	mp->pgcookie = pgcookie;
 }
-	
+
 /*
  * mpool_new --
  *	Get a new page of memory.
@@ -107,7 +107,8 @@ mpool_new(MPOOL *mp, pgno_t *pgnoaddr, unsigned int flags)
 	BKT *bp;
 
 	if (mp->npages == MAX_PAGE_NUMBER) {
-		(void)fprintf(stderr, "mpool_new: page allocation overflow.\n");
+		(void)fprintf(stderr,
+		    "mpool_new: page allocation overflow.\n");
 		abort();
 	}
 #ifdef STATISTICS
@@ -166,7 +167,7 @@ mpool_delete(MPOOL *mp, void *page)
  */
 void *
 mpool_get(MPOOL *mp, pgno_t pgno,
-    unsigned int flags)		/* XXX not used? */
+    unsigned int flags) /* XXX not used? */
 {
 	struct _hqh *head;
 	BKT *bp;
@@ -353,7 +354,8 @@ mpool_bkt(MPOOL *mp)
 			TAILQ_REMOVE(head, bp, hq);
 			TAILQ_REMOVE(&mp->lqh, bp, q);
 #ifdef DEBUG
-			{ void *spage;
+			{
+				void *spage;
 				spage = bp->page;
 				memset(bp, 0xff, sizeof(BKT) + mp->pagesize);
 				bp->page = spage;
@@ -363,7 +365,8 @@ mpool_bkt(MPOOL *mp)
 			return bp;
 		}
 
-new:	if ((bp = (BKT *)malloc(sizeof(BKT) + mp->pagesize)) == NULL)
+new:
+	if ((bp = (BKT *)malloc(sizeof(BKT) + mp->pagesize)) == NULL)
 		return NULL;
 #ifdef STATISTICS
 	++mp->pagealloc;
@@ -456,7 +459,7 @@ mpool_stat(MPOOL *mp)
 	    mp->pagealloc, mp->pageflush);
 	if (mp->cachehit + mp->cachemiss)
 		(void)fprintf(stderr,
-		    "%.0f%% cache hit rate (%lu hits, %lu misses)\n", 
+		    "%.0f%% cache hit rate (%lu hits, %lu misses)\n",
 		    ((double)mp->cachehit / (mp->cachehit + mp->cachemiss))
 		    * 100, mp->cachehit, mp->cachemiss);
 	(void)fprintf(stderr, "%lu page reads, %lu page writes\n",
@@ -475,7 +478,6 @@ mpool_stat(MPOOL *mp)
 			cnt = 0;
 		} else
 			sep = ", ";
-			
 	}
 	(void)fprintf(stderr, "\n");
 }

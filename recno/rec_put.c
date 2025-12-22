@@ -121,7 +121,8 @@ __rec_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 			return RET_SPECIAL;
 		break;
 	default:
-einval:		errno = EINVAL;
+einval:
+		errno = EINVAL;
 		return RET_ERROR;
 	}
 

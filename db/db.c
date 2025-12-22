@@ -45,7 +45,7 @@ dbopen(const char *fname, int flags, int mode, DBTYPE type,
     const void *openinfo)
 {
 
-#define	DB_FLAGS	(DB_LOCK | DB_SHMEM | DB_TXN)
+#define	DB_FLAGS (DB_LOCK | DB_SHMEM | DB_TXN)
 #if defined(__HyperbolaBSD__) || defined(__OpenBSD__)
 #define	USE_OPEN_FLAGS							\
 	(O_CREAT | O_EXCL | O_EXLOCK | O_NOFOLLOW | O_NONBLOCK | 	\
@@ -89,10 +89,16 @@ void
 __dbpanic(DB *dbp)
 {
 	/* The only thing that can succeed is a close. */
-	dbp->del = (int (*)(const struct __db *, const DBT*, unsigned int))__dberr;
+	dbp->del =
+	    (int (*)(const struct __db *, const DBT*, unsigned int))__dberr;
 	dbp->fd = (int (*)(const struct __db *))__dberr;
-	dbp->get = (int (*)(const struct __db *, const DBT*, DBT *, unsigned int))__dberr;
-	dbp->put = (int (*)(const struct __db *, DBT *, const DBT *, unsigned int))__dberr;
-	dbp->seq = (int (*)(const struct __db *, DBT *, DBT *, unsigned int))__dberr;
+	dbp->get =
+	    (int (*)(const struct __db *, const DBT*, DBT *, unsigned int))
+	    __dberr;
+	dbp->put =
+	    (int (*)(const struct __db *, DBT *, const DBT *, unsigned int))
+	    __dberr;
+	dbp->seq = (int (*)(const struct __db *, DBT *, DBT *, unsigned int))
+	    __dberr;
 	dbp->sync = (int (*)(const struct __db *, unsigned int))__dberr;
 }

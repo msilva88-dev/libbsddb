@@ -35,7 +35,7 @@
 #ifndef _LIBBSDDB_RECNO_INT_H
 #define _LIBBSDDB_RECNO_INT_H
 
-enum SRCHOP { SDELETE, SINSERT, SEARCH};	/* Rec_search operation. */
+enum SRCHOP { SDELETE, SINSERT, SEARCH }; /* Rec_search operation. */
 
 #include "extern.h"
 

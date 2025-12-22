@@ -57,6 +57,7 @@ __bt_dump(DB *dbp)
 	    F_ISSET(t, B_INMEM) ? "memory" : "disk", t->bt_psize);
 	if (F_ISSET(t, R_RECNO))
 		(void)fprintf(stderr, " keys %u", t->bt_nrecs);
+
 #undef X
 #define	X(flag, name) \
 	if (F_ISSET(t, flag)) { \
@@ -65,12 +66,12 @@ __bt_dump(DB *dbp)
 	}
 	if (t->flags != 0) {
 		sep = " flags (";
-		X(R_FIXLEN,	"FIXLEN");
-		X(B_INMEM,	"INMEM");
-		X(B_NODUPS,	"NODUPS");
-		X(B_RDONLY,	"RDONLY");
-		X(R_RECNO,	"RECNO");
-		X(B_METADIRTY,"METADIRTY");
+		X(R_FIXLEN, "FIXLEN");
+		X(B_INMEM, "INMEM");
+		X(B_NODUPS, "NODUPS");
+		X(B_RDONLY, "RDONLY");
+		X(R_RECNO, "RECNO");
+		X(B_METADIRTY, "METADIRTY");
 		(void)fprintf(stderr, ")\n");
 	}
 #undef X
@@ -107,8 +108,8 @@ __bt_dmpage(PAGE *h)
 	}
 	if (m->flags) {
 		sep = " (";
-		X(B_NODUPS,	"NODUPS");
-		X(R_RECNO,	"RECNO");
+		X(B_NODUPS, "NODUPS");
+		X(R_RECNO, "RECNO");
 		(void)fprintf(stderr, ")");
 	}
 }
@@ -147,6 +148,7 @@ __bt_dpage(PAGE *h)
 	char *sep;
 
 	(void)fprintf(stderr, "    page %u: (", h->pgno);
+
 #undef X
 #define	X(flag, name) \
 	if (h->flags & flag) { \
@@ -154,12 +156,12 @@ __bt_dpage(PAGE *h)
 		sep = ", "; \
 	}
 	sep = "";
-	X(P_BINTERNAL,	"BINTERNAL")		/* types */
-	X(P_BLEAF,	"BLEAF")
-	X(P_RINTERNAL,	"RINTERNAL")		/* types */
-	X(P_RLEAF,	"RLEAF")
-	X(P_OVERFLOW,	"OVERFLOW")
-	X(P_PRESERVE,	"PRESERVE");
+	X(P_BINTERNAL, "BINTERNAL")		/* types */
+	X(P_BLEAF, "BLEAF")
+	X(P_RINTERNAL, "RINTERNAL")		/* types */
+	X(P_RLEAF, "RLEAF")
+	X(P_OVERFLOW, "OVERFLOW")
+	X(P_PRESERVE, "PRESERVE");
 	(void)fprintf(stderr, ")\n");
 #undef X
 

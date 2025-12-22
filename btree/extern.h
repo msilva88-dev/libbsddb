@@ -38,38 +38,38 @@
 #include "../internal/btree.h"
 
 __BEGIN_HIDDEN_DECLS
-int	 __bt_close(DB *);
-int	 __bt_cmp(BTREE *, const DBT *, EPG *);
-int	 __bt_defcmp(const DBT *, const DBT *);
-size_t	 __bt_defpfx(const DBT *, const DBT *);
-int	 __bt_delete(const DB *, const DBT *, unsigned int);
-int	 __bt_dleaf(BTREE *, const DBT *, PAGE *, unsigned int);
-int	 __bt_fd(const DB *);
-int	 __bt_free(BTREE *, PAGE *);
-int	 __bt_get(const DB *, const DBT *, DBT *, unsigned int);
-PAGE	*__bt_new(BTREE *, pgno_t *);
-void	 __bt_pgin(void *, pgno_t, void *);
-void	 __bt_pgout(void *, pgno_t, void *);
-int	 __bt_put(const DB *dbp, DBT *, const DBT *, unsigned int);
-int	 __bt_ret(BTREE *, EPG *, DBT *, DBT *, DBT *, DBT *, int);
-EPG	*__bt_search(BTREE *, const DBT *, int *);
-int	 __bt_seq(const DB *, DBT *, DBT *, unsigned int);
-void	 __bt_setcur(BTREE *, pgno_t, unsigned int);
-int	 __bt_split(BTREE *, PAGE *,
-	    const DBT *, const DBT *, int, size_t, uint32_t);
-int	 __bt_sync(const DB *, unsigned int);
+int __bt_close(DB *);
+int __bt_cmp(BTREE *, const DBT *, EPG *);
+int __bt_defcmp(const DBT *, const DBT *);
+size_t __bt_defpfx(const DBT *, const DBT *);
+int __bt_delete(const DB *, const DBT *, unsigned int);
+int __bt_dleaf(BTREE *, const DBT *, PAGE *, unsigned int);
+int __bt_fd(const DB *);
+int __bt_free(BTREE *, PAGE *);
+int __bt_get(const DB *, const DBT *, DBT *, unsigned int);
+PAGE *__bt_new(BTREE *, pgno_t *);
+void __bt_pgin(void *, pgno_t, void *);
+void __bt_pgout(void *, pgno_t, void *);
+int __bt_put(const DB *dbp, DBT *, const DBT *, unsigned int);
+int __bt_ret(BTREE *, EPG *, DBT *, DBT *, DBT *, DBT *, int);
+EPG *__bt_search(BTREE *, const DBT *, int *);
+int __bt_seq(const DB *, DBT *, DBT *, unsigned int);
+void __bt_setcur(BTREE *, pgno_t, unsigned int);
+int __bt_split(BTREE *, PAGE *, const DBT *, const DBT *, int, size_t,
+    uint32_t);
+int __bt_sync(const DB *, unsigned int);
 
-int	 __ovfl_delete(BTREE *, void *);
-int	 __ovfl_get(BTREE *, void *, size_t *, void **, size_t *);
-int	 __ovfl_put(BTREE *, const DBT *, pgno_t *);
+int __ovfl_delete(BTREE *, void *);
+int __ovfl_get(BTREE *, void *, size_t *, void **, size_t *);
+int __ovfl_put(BTREE *, const DBT *, pgno_t *);
 
 #ifdef DEBUG
-void	 __bt_dnpage(DB *, pgno_t);
-void	 __bt_dpage(PAGE *);
-void	 __bt_dump(DB *);
+void __bt_dnpage(DB *, pgno_t);
+void __bt_dpage(PAGE *);
+void __bt_dump(DB *);
 #endif
 #ifdef STATISTICS
-void	 __bt_stat(DB *);
+void __bt_stat(DB *);
 #endif
 __END_HIDDEN_DECLS
 

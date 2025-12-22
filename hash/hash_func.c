@@ -44,8 +44,8 @@ __default_hash(const void *key, size_t len)
 	uint32_t h, loop;
 	uint8_t *k;
 
-#define HASH4a   h = (h << 5) - h + *k++;
-#define HASH4b   h = (h << 5) + h + *k++;
+#define HASH4a h = (h << 5) - h + *k++;
+#define HASH4b h = (h << 5) + h + *k++;
 #define HASH4 HASH4b
 
 	h = 0;
@@ -55,7 +55,7 @@ __default_hash(const void *key, size_t len)
 
 		switch (len & (8 - 1)) {
 		case 0:
-			do {	/* All fall throughs */
+			do { /* All fall throughs */
 				HASH4;
 		case 7:
 				HASH4;
@@ -73,7 +73,6 @@ __default_hash(const void *key, size_t len)
 				HASH4;
 			} while (--loop);
 		}
-
 	}
 	return h;
 }

@@ -235,7 +235,6 @@ dbm_clearerr(DBM *db)
 int
 dbm_dirfno(DBM *db)
 {
-
 	return ((HTAB *)db->internal)->fp;
 }
 

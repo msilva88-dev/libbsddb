@@ -257,7 +257,8 @@ __bt_stkacq(BTREE *t, PAGE **hp, CURSOR *c)
 			return 1;
 	}
 
-ret:	mpool_put(t->bt_mp, h, 0);
+ret:
+	mpool_put(t->bt_mp, h, 0);
 	return (*hp = mpool_get(t->bt_mp, c->pg.pgno, 0)) == NULL;
 }
 
@@ -281,8 +282,9 @@ __bt_bdelete(BTREE *t, const DBT *key)
 
 	deleted = 0;
 
+loop:
 	/* Find any matching record; __bt_search pins the page. */
-loop:	if ((e = __bt_search(t, key, &exact)) == NULL)
+	if ((e = __bt_search(t, key, &exact)) == NULL)
 		return deleted ? RET_SUCCESS : RET_ERROR;
 	if (!exact) {
 		mpool_put(t->bt_mp, e->page, 0);
@@ -544,7 +546,7 @@ __bt_curdel(BTREE *t, const DBT *key, PAGE *h, unsigned int idx)
 			key = &c->key;
 		}
 		/* Check previous key, if not at the beginning of the page. */
-		if (idx > 0) { 
+		if (idx > 0) {
 			e.page = h;
 			e.index = idx - 1;
 			if (__bt_cmp(t, key, &e) == 0) {
@@ -581,8 +583,10 @@ __bt_curdel(BTREE *t, const DBT *key, PAGE *h, unsigned int idx)
 			e.index = 0;
 			if (__bt_cmp(t, key, &e) == 0) {
 				F_SET(c, CURS_AFTER);
-dup1:				mpool_put(t->bt_mp, pg, 0);
-dup2:				c->pg.pgno = e.page->pgno;
+dup1:
+				mpool_put(t->bt_mp, pg, 0);
+dup2:
+				c->pg.pgno = e.page->pgno;
 				c->pg.index = e.index;
 				return RET_SUCCESS;
 			}

@@ -40,13 +40,13 @@
 #include "../internal/db.h"
 #include "btree.h"
 
-static int	 bt_broot(BTREE *, PAGE *, PAGE *, PAGE *);
-static PAGE	*bt_page(BTREE *, PAGE *, PAGE **, PAGE **, indx_t *, size_t);
-static int	 bt_preserve(BTREE *, pgno_t);
-static PAGE	*bt_psplit(BTREE *, PAGE *, PAGE *, PAGE *, indx_t *, size_t);
-static PAGE	*bt_root(BTREE *, PAGE *, PAGE **, PAGE **, indx_t *, size_t);
-static int	 bt_rroot(BTREE *, PAGE *, PAGE *, PAGE *);
-static recno_t	 rec_total(PAGE *);
+static int bt_broot(BTREE *, PAGE *, PAGE *, PAGE *);
+static PAGE *bt_page(BTREE *, PAGE *, PAGE **, PAGE **, indx_t *, size_t);
+static int bt_preserve(BTREE *, pgno_t);
+static PAGE *bt_psplit(BTREE *, PAGE *, PAGE *, PAGE *, indx_t *, size_t);
+static PAGE *bt_root(BTREE *, PAGE *, PAGE **, PAGE **, indx_t *, size_t);
+static int bt_rroot(BTREE *, PAGE *, PAGE *, PAGE *);
+static recno_t rec_total(PAGE *);
 
 #ifdef STATISTICS
 unsigned long bt_rootsplit, bt_split, bt_sortsplit, bt_pfxsaved;
@@ -301,10 +301,12 @@ __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
 	 * up the tree and the tree is now inconsistent.  Nothing much we can
 	 * do about it but release any memory we're holding.
 	 */
-err1:	mpool_put(t->bt_mp, lchild, MPOOL_DIRTY);
+err1:
+	mpool_put(t->bt_mp, lchild, MPOOL_DIRTY);
 	mpool_put(t->bt_mp, rchild, MPOOL_DIRTY);
 
-err2:	mpool_put(t->bt_mp, l, 0);
+err2:
+	mpool_put(t->bt_mp, l, 0);
 	mpool_put(t->bt_mp, r, 0);
 	__dbpanic(t->bt_dbp);
 	return RET_ERROR;
@@ -606,7 +608,7 @@ bt_psplit(BTREE *t, PAGE *h, PAGE *l, PAGE *r, indx_t *pskip, size_t ilen)
 	for (nxt = off = 0, top = NEXTINDEX(h); nxt < top; ++off) {
 		if (skip == off) {
 			nbytes = ilen;
-			isbigkey = 0;		/* XXX: not really known. */
+			isbigkey = 0; /* XXX: not really known. */
 		} else
 			switch (h->flags & P_TYPE) {
 			case P_BINTERNAL:
@@ -679,9 +681,9 @@ bt_psplit(BTREE *t, PAGE *h, PAGE *l, PAGE *r, indx_t *pskip, size_t ilen)
 	if (F_ISSET(c, CURS_INIT) && c->pg.pgno == h->pgno) {
 		if (c->pg.index >= skip)
 			++c->pg.index;
-		if (c->pg.index < nxt)			/* Left page. */
+		if (c->pg.index < nxt) /* Left page. */
 			c->pg.pgno = l->pgno;
-		else {					/* Right page. */
+		else { /* Right page. */
 			c->pg.pgno = r->pgno;
 			c->pg.index -= nxt;
 		}

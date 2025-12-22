@@ -59,7 +59,7 @@
 #endif
 #include "extern.h"
 
-#define MAXIMUM(a, b)	(((a) > (b)) ? (a) : (b))
+#define MAXIMUM(a, b) (((a) > (b)) ? (a) : (b))
 
 static BUFHEAD *newbuf(HTAB *, uint32_t, BUFHEAD *);
 
@@ -77,11 +77,11 @@ static BUFHEAD *newbuf(HTAB *, uint32_t, BUFHEAD *);
 	(B)->next->prev = (B); \
 }
 
-#define	MRU	hashp->bufhead.next
-#define	LRU	hashp->bufhead.prev
+#define	MRU hashp->bufhead.next
+#define	LRU hashp->bufhead.prev
 
-#define MRU_INSERT(B)	BUF_INSERT((B), &hashp->bufhead)
-#define LRU_INSERT(B)	BUF_INSERT((B), LRU)
+#define MRU_INSERT(B) BUF_INSERT((B), &hashp->bufhead)
+#define LRU_INSERT(B) BUF_INSERT((B), LRU)
 
 /*
  * We are looking for a buffer with address "addr".  If prev_bp is NULL, then
@@ -94,7 +94,7 @@ static BUFHEAD *newbuf(HTAB *, uint32_t, BUFHEAD *);
  */
 BUFHEAD *
 __get_buf(HTAB *hashp, uint32_t addr,
-    BUFHEAD *prev_bp,	/* If prev_bp set, indicates a new overflow page. */
+    BUFHEAD *prev_bp, /* If prev_bp set, indicates a new overflow page. */
     int newpage)
 {
 	BUFHEAD *bp;
@@ -148,8 +148,8 @@ __get_buf(HTAB *hashp, uint32_t addr,
 static BUFHEAD *
 newbuf(HTAB *hashp, uint32_t addr, BUFHEAD *prev_bp)
 {
-	BUFHEAD *bp;		/* The buffer we're going to use */
-	BUFHEAD *xbp;		/* Temp pointer */
+	BUFHEAD *bp; /* The buffer we're going to use */
+	BUFHEAD *xbp; /* Temp pointer */
 	BUFHEAD *next_xbp;
 	SEGMENT segp;
 	int segment_ndx;

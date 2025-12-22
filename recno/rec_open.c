@@ -115,7 +115,8 @@ __rec_open(const char *fname, int flags, int mode, const RECNOINFO *openinfo,
 			default:
 				goto einval;
 			}
-slow:			if ((t->bt_rfp = fdopen(rfd, "r")) == NULL)
+slow:
+			if ((t->bt_rfp = fdopen(rfd, "r")) == NULL)
 				goto err;
 			F_SET(t, R_CLOSEFP);
 			t->bt_irec =
@@ -167,8 +168,10 @@ slow:			if ((t->bt_rfp = fdopen(rfd, "r")) == NULL)
 		goto err;
 	return dbp;
 
-einval:	errno = EINVAL;
-err:	sverrno = errno;
+einval:
+	errno = EINVAL;
+err:
+	sverrno = errno;
 	if (dbp != NULL)
 		(void)__bt_close(dbp);
 	if (fname != NULL)

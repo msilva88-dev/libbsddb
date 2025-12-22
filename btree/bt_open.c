@@ -56,8 +56,8 @@
 #include "btree.h"
 
 #ifdef DEBUG
-#undef	MINPSIZE
-#define	MINPSIZE	128
+#undef MINPSIZE
+#define MINPSIZE 128
 #endif
 
 static int byteorder(void);
@@ -153,7 +153,7 @@ __bt_open(const char *fname, int flags, int mode, const BTREEINFO *openinfo,
 	/* Allocate and initialize DB and BTREE structures. */
 	if ((t = calloc(1, sizeof(BTREE))) == NULL)
 		goto err;
-	t->bt_fd = -1;			/* Don't close unopened fd on error. */
+	t->bt_fd = -1; /* Don't close unopened fd on error. */
 	t->bt_lorder = b.lorder;
 	t->bt_order = NOT;
 	t->bt_cmp = b.compare;
@@ -190,10 +190,9 @@ __bt_open(const char *fname, int flags, int mode, const BTREEINFO *openinfo,
 		default:
 			goto einval;
 		}
-		
+
 		if ((t->bt_fd = open(fname, flags | O_CLOEXEC, mode)) < 0)
 			goto err;
-
 	} else {
 		if ((flags & O_ACCMODE) != O_RDWR)
 			goto einval;
@@ -311,13 +310,16 @@ __bt_open(const char *fname, int flags, int mode, const BTREEINFO *openinfo,
 
 	return dbp;
 
-einval:	errno = EINVAL;
+einval:
+	errno = EINVAL;
 	goto err;
 
-eftype:	errno = EFTYPE;
+eftype:
+	errno = EFTYPE;
 	goto err;
 
-err:	saved_errno = errno;
+err:
+	saved_errno = errno;
 	if (t) {
 		free(t->bt_dbp);
 		if (t->bt_fd != -1)
@@ -354,7 +356,7 @@ nroot(BTREE *t)
 			return RET_SUCCESS;
 		}
 	}
-	if (errno != EINVAL)		/* It's OK to not exist. */
+	if (errno != EINVAL) /* It's OK to not exist. */
 		return RET_ERROR;
 	errno = 0;
 

@@ -66,12 +66,12 @@
 #include "extern.h"
 
 static uint32_t *fetch_bitmap(HTAB *, int);
-static uint32_t  first_free(uint32_t);
-static int	  open_temp(HTAB *);
-static uint16_t  overflow_page(HTAB *);
-static void	  putpair(char *, const DBT *, const DBT *);
-static void	  squeeze_key(uint16_t *, const DBT *, const DBT *);
-static int	  ugly_split(HTAB *, uint32_t, BUFHEAD *, BUFHEAD *, int, int);
+static uint32_t first_free(uint32_t);
+static int open_temp(HTAB *);
+static uint16_t overflow_page(HTAB *);
+static void putpair(char *, const DBT *, const DBT *);
+static void squeeze_key(uint16_t *, const DBT *, const DBT *);
+static int ugly_split(HTAB *, uint32_t, BUFHEAD *, BUFHEAD *, int, int);
 
 #define	PAGE_INIT(P) { \
 	((uint16_t *)(P))[0] = 0; \
@@ -243,6 +243,7 @@ __split_page(HTAB *hashp, uint32_t obucket, uint32_t nbucket)
 	    ((uint16_t *)np)[0] / 2,
 	    ((uint16_t *)op)[0] / 2);
 #endif
+
 	/* unpin both pages */
 	old_bufp->flags &= ~BUF_PIN;
 	new_bufp->flags &= ~BUF_PIN;
@@ -266,29 +267,29 @@ __split_page(HTAB *hashp, uint32_t obucket, uint32_t nbucket)
  */
 static int
 ugly_split(HTAB *hashp,
-    uint32_t obucket,	/* Same as __split_page. */
+    uint32_t obucket, /* Same as __split_page. */
     BUFHEAD *old_bufp,
     BUFHEAD *new_bufp,
-    int copyto,		/* First byte on page which contains key/data values. */
-    int moved)		/* Number of pairs moved to new page. */
+    int copyto, /* First byte on page which contains key/data values. */
+    int moved) /* Number of pairs moved to new page. */
 {
-	BUFHEAD *bufp;	/* Buffer header for ino */
-	uint16_t *ino;	/* Page keys come off of */
-	uint16_t *np;	/* New page */
-	uint16_t *op;	/* Page keys go on to if they aren't moving */
+	BUFHEAD *bufp; /* Buffer header for ino */
+	uint16_t *ino; /* Page keys come off of */
+	uint16_t *np; /* New page */
+	uint16_t *op; /* Page keys go on to if they aren't moving */
 
-	BUFHEAD *last_bfp;	/* Last buf header OVFL needing to be freed */
+	BUFHEAD *last_bfp; /* Last buf header OVFL needing to be freed */
 	DBT key, val;
 	SPLIT_RETURN ret;
 	uint16_t n, off, ov_addr, scopyto;
-	char *cino;		/* Character value of ino */
+	char *cino; /* Character value of ino */
 
 	bufp = old_bufp;
 	ino = (uint16_t *)old_bufp->page;
 	np = (uint16_t *)new_bufp->page;
 	op = (uint16_t *)old_bufp->page;
 	last_bfp = NULL;
-	scopyto = (uint16_t)copyto;	/* ANSI */
+	scopyto = (uint16_t)copyto; /* ANSI */
 
 	n = ino[0] - 1;
 	while (n < ino[0]) {
@@ -527,7 +528,7 @@ __get_page(HTAB *hashp, char *p, uint32_t bucket, int is_bucket, int is_disk,
 		return -1;
 	bp = (uint16_t *)p;
 	if (!rsize)
-		bp[0] = 0;	/* We hit the EOF, so initialize a new page */
+		bp[0] = 0; /* We hit the EOF, so initialize a new page */
 	else
 		if (rsize != size) {
 			errno = EFTYPE;
@@ -574,7 +575,7 @@ __put_page(HTAB *hashp, char *p, uint32_t bucket, int is_bucket, int is_bitmap)
 		int i, max;
 
 		if (is_bitmap) {
-			max = hashp->BSIZE >> 2;	/* divide by 4 */
+			max = hashp->BSIZE >> 2; /* divide by 4 */
 			for (i = 0; i < max; i++)
 				M_32_SWAP(((int *)p)[i]);
 		} else {
@@ -597,7 +598,7 @@ __put_page(HTAB *hashp, char *p, uint32_t bucket, int is_bucket, int is_bitmap)
 	return 0;
 }
 
-#define BYTE_MASK	((1 << INT_BYTE_SHIFT) -1)
+#define BYTE_MASK ((1 << INT_BYTE_SHIFT) -1)
 /*
  * Initialize a new bitmap page.  Bitmap pages are left in memory
  * once they are read in.
@@ -775,7 +776,7 @@ found:
 	if (offset >= SPLITMASK) {
 		(void)write(STDERR_FILENO, OVMSG, sizeof(OVMSG) - 1);
 		errno = EFBIG;
-		return 0;	/* Out of overflow pages */
+		return 0; /* Out of overflow pages */
 	}
 	addr = OADDR_OF(i, offset);
 #ifdef DEBUG2
@@ -909,6 +910,7 @@ fetch_bitmap(HTAB *hashp, int ndx)
 int
 print_chain(int addr)
 {
+	HTAB *hashp = NULL;
 	BUFHEAD *bufp;
 	short *bp, oaddr;
 
