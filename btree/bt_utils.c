@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_utils.c,v 1.13 2022/12/27 17:10:06 jmc Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,11 +35,8 @@
  * SUCH DAMAGE.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <db.h>
 #include "btree.h"
 
 #define MINIMUM(a, b)	(((a) < (b)) ? (a) : (b))
@@ -200,7 +200,7 @@ int
 __bt_defcmp(const DBT *a, const DBT *b)
 {
 	size_t len;
-	u_char *p1, *p2;
+	unsigned char *p1, *p2;
 
 	/*
 	 * XXX
@@ -228,7 +228,7 @@ __bt_defcmp(const DBT *a, const DBT *b)
 size_t
 __bt_defpfx(const DBT *a, const DBT *b)
 {
-	u_char *p1, *p2;
+	unsigned char *p1, *p2;
 	size_t cnt, len;
 
 	cnt = 1;

@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_debug.c,v 1.10 2015/01/16 16:48:51 deraadt Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,11 +35,6 @@
  * SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <db.h>
 #include "btree.h"
 
 #ifdef DEBUG
@@ -196,14 +194,14 @@ __bt_dpage(PAGE *h)
 				(void)fprintf(stderr,
 				    "big key page %u size %u/",
 				    *(pgno_t *)bl->bytes,
-				    *(u_int32_t *)(bl->bytes + sizeof(pgno_t)));
+				    *(uint32_t *)(bl->bytes + sizeof(pgno_t)));
 			else if (bl->ksize)
 				(void)fprintf(stderr, "%s/", bl->bytes);
 			if (bl->flags & P_BIGDATA)
 				(void)fprintf(stderr,
 				    "big data page %u size %u",
 				    *(pgno_t *)(bl->bytes + bl->ksize),
-				    *(u_int32_t *)(bl->bytes + bl->ksize +
+				    *(uint32_t *)(bl->bytes + bl->ksize +
 				    sizeof(pgno_t)));
 			else if (bl->dsize)
 				(void)fprintf(stderr, "%.*s",
@@ -215,7 +213,7 @@ __bt_dpage(PAGE *h)
 				(void)fprintf(stderr,
 				    "big data page %u size %u",
 				    *(pgno_t *)rl->bytes,
-				    *(u_int32_t *)(rl->bytes + sizeof(pgno_t)));
+				    *(uint32_t *)(rl->bytes + sizeof(pgno_t)));
 			else if (rl->dsize)
 				(void)fprintf(stderr,
 				    "%.*s", (int)rl->dsize, rl->bytes);
@@ -236,12 +234,12 @@ __bt_dpage(PAGE *h)
 void
 __bt_stat(DB *dbp)
 {
-	extern u_long bt_cache_hit, bt_cache_miss, bt_pfxsaved, bt_rootsplit;
-	extern u_long bt_sortsplit, bt_split;
+	extern unsigned long bt_cache_hit, bt_cache_miss, bt_pfxsaved;
+	extern unsigned long bt_rootsplit, bt_sortsplit, bt_split;
 	BTREE *t;
 	PAGE *h;
 	pgno_t i, pcont, pinternal, pleaf;
-	u_long ifree, lfree, nkeys;
+	unsigned long ifree, lfree, nkeys;
 	int levels;
 
 	t = dbp->internal;

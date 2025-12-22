@@ -1,11 +1,14 @@
-/*	$OpenBSD: page.h,v 1.6 2003/06/02 20:18:34 millert Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Margo Seltzer.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,8 +33,6 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)page.h	8.2 (Berkeley) 5/31/94
  */
 
 /*
@@ -71,20 +72,27 @@
  * You might as well do this up front.
  */
 
-#define	PAIRSIZE(K,D)	(2*sizeof(u_int16_t) + (K)->size + (D)->size)
-#define BIGOVERHEAD	(4*sizeof(u_int16_t))
-#define KEYSIZE(K)	(4*sizeof(u_int16_t) + (K)->size);
-#define OVFLSIZE	(2*sizeof(u_int16_t))
+#ifndef _LIBBSDDB_PAGE_INT_H
+#define _LIBBSDDB_PAGE_INT_H
+
+#include "hash.h"
+
+#define	PAIRSIZE(K,D)	(2*sizeof(uint16_t) + (K)->size + (D)->size)
+#define BIGOVERHEAD	(4*sizeof(uint16_t))
+#define KEYSIZE(K)	(4*sizeof(uint16_t) + (K)->size);
+#define OVFLSIZE	(2*sizeof(uint16_t))
 #define FREESPACE(P)	((P)[(P)[0]+1])
 #define	OFFSET(P)	((P)[(P)[0]+2])
 #define PAIRFITS(P,K,D) \
 	(((P)[2] >= REAL_KEY) && \
 	    (PAIRSIZE((K),(D)) + OVFLSIZE) <= FREESPACE((P)))
-#define PAGE_META(N)	(((N)+3) * sizeof(u_int16_t))
+#define PAGE_META(N)	(((N)+3) * sizeof(uint16_t))
 
 typedef struct {
 	BUFHEAD *newp;
 	BUFHEAD *oldp;
 	BUFHEAD *nextp;
-	u_int16_t next_addr;
+	uint16_t next_addr;
 }       SPLIT_RETURN;
+
+#endif

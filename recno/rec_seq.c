@@ -1,8 +1,11 @@
-/*	$OpenBSD: rec_seq.c,v 1.8 2005/08/05 13:03:00 espie Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1991, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,14 +32,7 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
 #include <errno.h>
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <db.h>
 #include "recno.h"
 
 /*
@@ -52,7 +48,7 @@
  *	RET_ERROR, RET_SUCCESS or RET_SPECIAL if there's no next key.
  */
 int
-__rec_seq(const DB *dbp, DBT *key, DBT *data, u_int flags)
+__rec_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 {
 	BTREE *t;
 	EPG *e;

@@ -1,11 +1,14 @@
-/*	$OpenBSD: ndbm.c,v 1.28 2023/02/17 17:59:36 miod Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Margo Seltzer.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,10 +39,9 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
-#include <string.h>
-
-#include <ndbm.h>
+#include "../internal/db.h"
 #include "hash.h"
+#include "ndbm.h"
 
 /*
  *
@@ -97,19 +99,20 @@ dbm_open(const char *file, int flags, mode_t mode)
  * Returns:
  *	Nothing.
  */
+DEF_WEAK(dbm_close);
 void
 dbm_close(DBM *db)
 {
 
 	(void)(db->close)(db);
 }
-DEF_WEAK(dbm_close);
 
 /*
  * Returns:
  *	DATUM on success
  *	NULL on failure
  */
+DEF_WEAK(dbm_fetch);
 datum
 dbm_fetch(DBM *db, datum key)
 {
@@ -128,13 +131,13 @@ dbm_fetch(DBM *db, datum key)
 	retdata.dsize = dbtretdata.size;
 	return (retdata);
 }
-DEF_WEAK(dbm_fetch);
 
 /*
  * Returns:
  *	DATUM on success
  *	NULL on failure
  */
+DEF_WEAK(dbm_firstkey);
 datum
 dbm_firstkey(DBM *db)
 {
@@ -149,13 +152,13 @@ dbm_firstkey(DBM *db)
 	retkey.dsize = dbtretkey.size;
 	return (retkey);
 }
-DEF_WEAK(dbm_firstkey);
 
 /*
  * Returns:
  *	DATUM on success
  *	NULL on failure
  */
+DEF_WEAK(dbm_nextkey);
 datum
 dbm_nextkey(DBM *db)
 {
@@ -170,13 +173,13 @@ dbm_nextkey(DBM *db)
 	retkey.dsize = dbtretkey.size;
 	return (retkey);
 }
-DEF_WEAK(dbm_nextkey);
 
 /*
  * Returns:
  *	 0 on success
  *	<0 on failure
  */
+DEF_WEAK(dbm_delete);
 int
 dbm_delete(DBM *db, datum key)
 {
@@ -191,7 +194,6 @@ dbm_delete(DBM *db, datum key)
 	else
 		return (0);
 }
-DEF_WEAK(dbm_delete);
 
 /*
  * Returns:
@@ -199,6 +201,7 @@ DEF_WEAK(dbm_delete);
  *	<0 on failure
  *	 1 if DBM_INSERT and entry exists
  */
+DEF_WEAK(dbm_store);
 int
 dbm_store(DBM *db, datum key, datum data, int flags)
 {
@@ -211,7 +214,6 @@ dbm_store(DBM *db, datum key, datum data, int flags)
 	return ((db->put)(db, &dbtkey, &dbtdata,
 	    (flags == DBM_INSERT) ? R_NOOVERWRITE : 0));
 }
-DEF_WEAK(dbm_store);
 
 int
 dbm_error(DBM *db)
@@ -239,6 +241,7 @@ dbm_dirfno(DBM *db)
 	return(((HTAB *)db->internal)->fp);
 }
 
+DEF_WEAK(dbm_rdonly);
 int
 dbm_rdonly(DBM *dbp)
 {
@@ -247,4 +250,3 @@ dbm_rdonly(DBM *dbp)
 	/* Could use DBM_RDONLY instead if we wanted... */
 	return ((hashp->flags & O_ACCMODE) == O_RDONLY);
 }
-DEF_WEAK(dbm_rdonly);

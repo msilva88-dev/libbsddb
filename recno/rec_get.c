@@ -1,8 +1,11 @@
-/*	$OpenBSD: rec_get.c,v 1.11 2007/08/08 07:16:50 ray Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,16 +32,9 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
 #include <errno.h>
-#include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-
-#include <db.h>
 #include "recno.h"
 
 /*
@@ -54,7 +50,7 @@
  *	RET_ERROR, RET_SUCCESS and RET_SPECIAL if the key not found.
  */
 int
-__rec_get(const DB *dbp, const DBT *key, DBT *data, u_int flags)
+__rec_get(const DB *dbp, const DBT *key, DBT *data, unsigned int flags)
 {
 	BTREE *t;
 	EPG *e;
@@ -115,7 +111,7 @@ __rec_fpipe(BTREE *t, recno_t top)
 	recno_t nrec;
 	size_t len;
 	int ch;
-	u_char *p;
+	unsigned char *p;
 	void *tp;
 
 	if (t->bt_rdata.size < t->bt_reclen) {
@@ -170,7 +166,7 @@ __rec_vpipe(BTREE *t, recno_t top)
 	size_t len;
 	size_t sz;
 	int bval, ch;
-	u_char *p;
+	unsigned char *p;
 	void *tp;
 
 	bval = t->bt_bval;
@@ -179,7 +175,8 @@ __rec_vpipe(BTREE *t, recno_t top)
 		    sz = t->bt_rdata.size;; *p++ = ch, --sz) {
 			if ((ch = getc(t->bt_rfp)) == EOF || ch == bval) {
 				data.data = t->bt_rdata.data;
-				data.size = p - (u_char *)t->bt_rdata.data;
+				data.size =
+					p - (unsigned char *)t->bt_rdata.data;
 				if (ch == EOF && data.size == 0)
 					break;
 				if (__rec_iput(t, nrec, &data, 0)
@@ -188,13 +185,13 @@ __rec_vpipe(BTREE *t, recno_t top)
 				break;
 			}
 			if (sz == 0) {
-				len = p - (u_char *)t->bt_rdata.data;
+				len = p - (unsigned char *)t->bt_rdata.data;
 				t->bt_rdata.size += (sz = 256);
 				tp = realloc(t->bt_rdata.data, t->bt_rdata.size);
 				if (tp == NULL)
 					return (RET_ERROR);
 				t->bt_rdata.data = tp;
-				p = (u_char *)t->bt_rdata.data + len;
+				p = (unsigned char *)t->bt_rdata.data + len;
 			}
 		}
 		if (ch == EOF)
@@ -222,7 +219,7 @@ __rec_fmap(BTREE *t, recno_t top)
 {
 	DBT data;
 	recno_t nrec;
-	u_char *sp, *ep, *p;
+	unsigned char *sp, *ep, *p;
 	size_t len;
 	void *tp;
 
@@ -236,8 +233,8 @@ __rec_fmap(BTREE *t, recno_t top)
 	data.data = t->bt_rdata.data;
 	data.size = t->bt_reclen;
 
-	sp = (u_char *)t->bt_cmap;
-	ep = (u_char *)t->bt_emap;
+	sp = (unsigned char *)t->bt_cmap;
+	ep = (unsigned char *)t->bt_emap;
 	for (nrec = t->bt_nrecs; nrec < top; ++nrec) {
 		if (sp >= ep) {
 			F_SET(t, R_EOF);
@@ -269,12 +266,12 @@ int
 __rec_vmap(BTREE *t, recno_t top)
 {
 	DBT data;
-	u_char *sp, *ep;
+	unsigned char *sp, *ep;
 	recno_t nrec;
 	int bval;
 
-	sp = (u_char *)t->bt_cmap;
-	ep = (u_char *)t->bt_emap;
+	sp = (unsigned char *)t->bt_cmap;
+	ep = (unsigned char *)t->bt_emap;
 	bval = t->bt_bval;
 
 	for (nrec = t->bt_nrecs; nrec < top; ++nrec) {
@@ -283,7 +280,7 @@ __rec_vmap(BTREE *t, recno_t top)
 			return (RET_SPECIAL);
 		}
 		for (data.data = sp; sp < ep && *sp != bval; ++sp);
-		data.size = sp - (u_char *)data.data;
+		data.size = sp - (unsigned char *)data.data;
 		if (__rec_iput(t, nrec, &data, 0) != RET_SUCCESS)
 			return (RET_ERROR);
 		++sp;

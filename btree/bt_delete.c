@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_delete.c,v 1.11 2005/08/05 13:02:59 espie Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,17 +35,12 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
 #include <errno.h>
-#include <stdio.h>
 #include <string.h>
-
-#include <db.h>
 #include "btree.h"
 
 static int __bt_bdelete(BTREE *, const DBT *);
-static int __bt_curdel(BTREE *, const DBT *, PAGE *, u_int);
+static int __bt_curdel(BTREE *, const DBT *, PAGE *, unsigned int);
 static int __bt_pdelete(BTREE *, PAGE *);
 static int __bt_relink(BTREE *, PAGE *);
 static int __bt_stkacq(BTREE *, PAGE **, CURSOR *);
@@ -54,7 +52,7 @@ static int __bt_stkacq(BTREE *, PAGE **, CURSOR *);
  * Return RET_SPECIAL if the key is not found.
  */
 int
-__bt_delete(const DB *dbp, const DBT *key, u_int flags)
+__bt_delete(const DB *dbp, const DBT *key, unsigned int flags)
 {
 	BTREE *t;
 	CURSOR *c;
@@ -367,7 +365,7 @@ __bt_pdelete(BTREE *t, PAGE *h)
 	PAGE *pg;
 	EPGNO *parent;
 	indx_t cnt, idx, *ip, offset;
-	u_int32_t nksize;
+	uint32_t nksize;
 	char *from;
 
 	/*
@@ -455,11 +453,11 @@ __bt_pdelete(BTREE *t, PAGE *h)
  *	RET_SUCCESS, RET_ERROR.
  */
 int
-__bt_dleaf(BTREE *t, const DBT *key, PAGE *h, u_int idx)
+__bt_dleaf(BTREE *t, const DBT *key, PAGE *h, unsigned int idx)
 {
 	BLEAF *bl;
 	indx_t cnt, *ip, offset;
-	u_int32_t nbytes;
+	uint32_t nbytes;
 	void *to;
 	char *from;
 
@@ -516,7 +514,7 @@ __bt_dleaf(BTREE *t, const DBT *key, PAGE *h, u_int idx)
  *	RET_SUCCESS, RET_ERROR.
  */
 static int
-__bt_curdel(BTREE *t, const DBT *key, PAGE *h, u_int idx)
+__bt_curdel(BTREE *t, const DBT *key, PAGE *h, unsigned int idx)
 {
 	CURSOR *c;
 	EPG e;

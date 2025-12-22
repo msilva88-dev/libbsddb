@@ -1,8 +1,11 @@
-/*	$OpenBSD: rec_close.c,v 1.13 2016/09/21 04:38:56 guenther Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,16 +32,8 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
 #include <sys/uio.h>
-#include <sys/mman.h>
-
-#include <errno.h>
-#include <limits.h>
-#include <stdio.h>
 #include <unistd.h>
-
-#include <db.h>
 #include "recno.h"
 
 /*
@@ -96,7 +91,7 @@ __rec_close(DB *dbp)
  *	RET_SUCCESS, RET_ERROR.
  */
 int
-__rec_sync(const DB *dbp, u_int flags)
+__rec_sync(const DB *dbp, unsigned int flags)
 {
 	struct iovec iov[2];
 	BTREE *t;

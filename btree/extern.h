@@ -1,8 +1,11 @@
-/*	$OpenBSD: extern.h,v 1.8 2015/08/27 04:37:09 guenther Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1991, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,31 +30,34 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)extern.h	8.10 (Berkeley) 7/20/94
  */
+
+#ifndef _LIBBSDDB_EXTERN_BTREE_INT_H
+#define _LIBBSDDB_EXTERN_BTREE_INT_H
+
+#include "../internal/btree.h"
 
 __BEGIN_HIDDEN_DECLS
 int	 __bt_close(DB *);
 int	 __bt_cmp(BTREE *, const DBT *, EPG *);
 int	 __bt_defcmp(const DBT *, const DBT *);
 size_t	 __bt_defpfx(const DBT *, const DBT *);
-int	 __bt_delete(const DB *, const DBT *, u_int);
-int	 __bt_dleaf(BTREE *, const DBT *, PAGE *, u_int);
+int	 __bt_delete(const DB *, const DBT *, unsigned int);
+int	 __bt_dleaf(BTREE *, const DBT *, PAGE *, unsigned int);
 int	 __bt_fd(const DB *);
 int	 __bt_free(BTREE *, PAGE *);
-int	 __bt_get(const DB *, const DBT *, DBT *, u_int);
+int	 __bt_get(const DB *, const DBT *, DBT *, unsigned int);
 PAGE	*__bt_new(BTREE *, pgno_t *);
 void	 __bt_pgin(void *, pgno_t, void *);
 void	 __bt_pgout(void *, pgno_t, void *);
-int	 __bt_put(const DB *dbp, DBT *, const DBT *, u_int);
+int	 __bt_put(const DB *dbp, DBT *, const DBT *, unsigned int);
 int	 __bt_ret(BTREE *, EPG *, DBT *, DBT *, DBT *, DBT *, int);
 EPG	*__bt_search(BTREE *, const DBT *, int *);
-int	 __bt_seq(const DB *, DBT *, DBT *, u_int);
-void	 __bt_setcur(BTREE *, pgno_t, u_int);
+int	 __bt_seq(const DB *, DBT *, DBT *, unsigned int);
+void	 __bt_setcur(BTREE *, pgno_t, unsigned int);
 int	 __bt_split(BTREE *, PAGE *,
-	    const DBT *, const DBT *, int, size_t, u_int32_t);
-int	 __bt_sync(const DB *, u_int);
+	    const DBT *, const DBT *, int, size_t, uint32_t);
+int	 __bt_sync(const DB *, unsigned int);
 
 int	 __ovfl_delete(BTREE *, void *);
 int	 __ovfl_get(BTREE *, void *, size_t *, void **, size_t *);
@@ -66,3 +72,5 @@ void	 __bt_dump(DB *);
 void	 __bt_stat(DB *);
 #endif
 __END_HIDDEN_DECLS
+
+#endif

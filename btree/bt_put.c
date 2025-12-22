@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_put.c,v 1.13 2005/08/05 13:02:59 espie Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,14 +35,8 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
 #include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
-#include <db.h>
 #include "btree.h"
 
 static EPG *bt_fast(BTREE *, const DBT *, const DBT *, int *);
@@ -58,7 +55,7 @@ static EPG *bt_fast(BTREE *, const DBT *, const DBT *, int *);
  *	tree and R_NOOVERWRITE specified.
  */
 int
-__bt_put(const DB *dbp, DBT *key, const DBT *data, u_int flags)
+__bt_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 {
 	BTREE *t;
 	DBT tkey, tdata;
@@ -66,7 +63,7 @@ __bt_put(const DB *dbp, DBT *key, const DBT *data, u_int flags)
 	PAGE *h;
 	indx_t idx, nxtindex;
 	pgno_t pg;
-	u_int32_t nbytes, size32;
+	uint32_t nbytes, size32;
 	int dflags, exact, status;
 	char *dest, db[NOVFLSIZE], kb[NOVFLSIZE];
 
@@ -121,7 +118,7 @@ storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
 			memmove(kb, &pg, sizeof(pgno_t));
 			size32 = key->size;
 			memmove(kb + sizeof(pgno_t),
-			    &size32, sizeof(u_int32_t));
+			    &size32, sizeof(uint32_t));
 			dflags |= P_BIGKEY;
 			key = &tkey;
 		}
@@ -133,7 +130,7 @@ storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
 			memmove(db, &pg, sizeof(pgno_t));
 			size32 = data->size;
 			memmove(db + sizeof(pgno_t),
-			    &size32, sizeof(u_int32_t));
+			    &size32, sizeof(uint32_t));
 			dflags |= P_BIGDATA;
 			data = &tdata;
 		}
@@ -242,7 +239,7 @@ success:
 }
 
 #ifdef STATISTICS
-u_long bt_cache_hit, bt_cache_miss;
+unsigned long bt_cache_hit, bt_cache_miss;
 #endif
 
 /*
@@ -259,7 +256,7 @@ static EPG *
 bt_fast(BTREE *t, const DBT *key, const DBT *data, int *exactp)
 {
 	PAGE *h;
-	u_int32_t nbytes;
+	uint32_t nbytes;
 	int cmp;
 
 	if ((h = mpool_get(t->bt_mp, t->bt_last.pgno, 0)) == NULL) {

@@ -1,7 +1,11 @@
-/*	$OpenBSD: rec_utils.c,v 1.10 2022/12/27 17:10:06 jmc Exp $ */
-/*-
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,11 +32,8 @@
  * SUCH DAMAGE.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <db.h>
 #include "recno.h"
 
 /*

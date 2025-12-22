@@ -1,8 +1,11 @@
-/*	$OpenBSD: mpool.c,v 1.21 2015/11/01 03:45:28 guenther Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,19 +32,15 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/queue.h>
 #include <sys/stat.h>
-
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include <db.h>
-
 #define	__MPOOLINTERFACE_PRIVATE
-#include <mpool.h>
+#include "../internal/mpool.h"
 
 static BKT *mpool_bkt(MPOOL *);
 static BKT *mpool_look(MPOOL *, pgno_t);
@@ -102,7 +101,7 @@ mpool_filter(MPOOL *mp, void (*pgin) (void *, pgno_t, void *),
  *	Get a new page of memory.
  */
 void *
-mpool_new(MPOOL *mp, pgno_t *pgnoaddr, u_int flags)
+mpool_new(MPOOL *mp, pgno_t *pgnoaddr, unsigned int flags)
 {
 	struct _hqh *head;
 	BKT *bp;
@@ -167,7 +166,7 @@ mpool_delete(MPOOL *mp, void *page)
  */
 void *
 mpool_get(MPOOL *mp, pgno_t pgno,
-    u_int flags)		/* XXX not used? */
+    unsigned int flags)		/* XXX not used? */
 {
 	struct _hqh *head;
 	BKT *bp;
@@ -260,7 +259,7 @@ mpool_get(MPOOL *mp, pgno_t pgno,
  *	Return a page.
  */
 int
-mpool_put(MPOOL *mp, void *page, u_int flags)
+mpool_put(MPOOL *mp, void *page, unsigned int flags)
 {
 	BKT *bp;
 

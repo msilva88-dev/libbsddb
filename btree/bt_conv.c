@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_conv.c,v 1.10 2015/01/16 16:48:51 deraadt Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,9 +35,7 @@
  * SUCH DAMAGE.
  */
 
-#include <stdio.h>
-
-#include <db.h>
+#include "../internal/db.h"
 #include "btree.h"
 
 static void mswap(PAGE *);
@@ -54,7 +55,7 @@ __bt_pgin(void *t, pgno_t pg, void *pp)
 {
 	PAGE *h;
 	indx_t i, top;
-	u_char flags;
+	unsigned char flags;
 	char *p;
 
 	if (!F_ISSET(((BTREE *)t), B_NEEDSWAP))
@@ -78,11 +79,11 @@ __bt_pgin(void *t, pgno_t pg, void *pp)
 			M_16_SWAP(h->linp[i]);
 			p = (char *)GETBINTERNAL(h, i);
 			P_32_SWAP(p);
-			p += sizeof(u_int32_t);
+			p += sizeof(uint32_t);
 			P_32_SWAP(p);
 			p += sizeof(pgno_t);
-			if (*(u_char *)p & P_BIGKEY) {
-				p += sizeof(u_char);
+			if (*(unsigned char *)p & P_BIGKEY) {
+				p += sizeof(unsigned char);
 				P_32_SWAP(p);
 				p += sizeof(pgno_t);
 				P_32_SWAP(p);
@@ -93,19 +94,19 @@ __bt_pgin(void *t, pgno_t pg, void *pp)
 			M_16_SWAP(h->linp[i]);
 			p = (char *)GETBLEAF(h, i);
 			P_32_SWAP(p);
-			p += sizeof(u_int32_t);
+			p += sizeof(uint32_t);
 			P_32_SWAP(p);
-			p += sizeof(u_int32_t);
-			flags = *(u_char *)p;
+			p += sizeof(uint32_t);
+			flags = *(unsigned char *)p;
 			if (flags & (P_BIGKEY | P_BIGDATA)) {
-				p += sizeof(u_char);
+				p += sizeof(unsigned char);
 				if (flags & P_BIGKEY) {
 					P_32_SWAP(p);
 					p += sizeof(pgno_t);
 					P_32_SWAP(p);
 				}
 				if (flags & P_BIGDATA) {
-					p += sizeof(u_int32_t);
+					p += sizeof(uint32_t);
 					P_32_SWAP(p);
 					p += sizeof(pgno_t);
 					P_32_SWAP(p);
@@ -119,7 +120,7 @@ __bt_pgout(void *t, pgno_t pg, void *pp)
 {
 	PAGE *h;
 	indx_t i, top;
-	u_char flags;
+	unsigned char flags;
 	char *p;
 
 	if (!F_ISSET(((BTREE *)t), B_NEEDSWAP))
@@ -135,11 +136,11 @@ __bt_pgout(void *t, pgno_t pg, void *pp)
 		for (i = 0; i < top; i++) {
 			p = (char *)GETBINTERNAL(h, i);
 			P_32_SWAP(p);
-			p += sizeof(u_int32_t);
+			p += sizeof(uint32_t);
 			P_32_SWAP(p);
 			p += sizeof(pgno_t);
-			if (*(u_char *)p & P_BIGKEY) {
-				p += sizeof(u_char);
+			if (*(unsigned char *)p & P_BIGKEY) {
+				p += sizeof(unsigned char);
 				P_32_SWAP(p);
 				p += sizeof(pgno_t);
 				P_32_SWAP(p);
@@ -150,19 +151,19 @@ __bt_pgout(void *t, pgno_t pg, void *pp)
 		for (i = 0; i < top; i++) {
 			p = (char *)GETBLEAF(h, i);
 			P_32_SWAP(p);
-			p += sizeof(u_int32_t);
+			p += sizeof(uint32_t);
 			P_32_SWAP(p);
-			p += sizeof(u_int32_t);
-			flags = *(u_char *)p;
+			p += sizeof(uint32_t);
+			flags = *(unsigned char *)p;
 			if (flags & (P_BIGKEY | P_BIGDATA)) {
-				p += sizeof(u_char);
+				p += sizeof(unsigned char);
 				if (flags & P_BIGKEY) {
 					P_32_SWAP(p);
 					p += sizeof(pgno_t);
 					P_32_SWAP(p);
 				}
 				if (flags & P_BIGDATA) {
-					p += sizeof(u_int32_t);
+					p += sizeof(uint32_t);
 					P_32_SWAP(p);
 					p += sizeof(pgno_t);
 					P_32_SWAP(p);
@@ -192,15 +193,15 @@ mswap(PAGE *pg)
 
 	p = (char *)pg;
 	P_32_SWAP(p);		/* magic */
-	p += sizeof(u_int32_t);
+	p += sizeof(uint32_t);
 	P_32_SWAP(p);		/* version */
-	p += sizeof(u_int32_t);
+	p += sizeof(uint32_t);
 	P_32_SWAP(p);		/* psize */
-	p += sizeof(u_int32_t);
+	p += sizeof(uint32_t);
 	P_32_SWAP(p);		/* free */
-	p += sizeof(u_int32_t);
+	p += sizeof(uint32_t);
 	P_32_SWAP(p);		/* nrecs */
-	p += sizeof(u_int32_t);
+	p += sizeof(uint32_t);
 	P_32_SWAP(p);		/* flags */
-	p += sizeof(u_int32_t);
+	p += sizeof(uint32_t);
 }

@@ -1,8 +1,11 @@
-/*	$OpenBSD: bt_page.c,v 1.9 2005/08/05 13:02:59 espie Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,11 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
-#include <stdio.h>
-
-#include <db.h>
 #include "btree.h"
 
 /*

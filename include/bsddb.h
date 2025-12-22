@@ -1,9 +1,11 @@
-/*	$OpenBSD: db.h,v 1.12 2015/10/17 21:48:42 guenther Exp $	*/
-/*	$NetBSD: db.h,v 1.13 1994/10/26 00:55:48 cgd Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,27 +30,26 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)db.h	8.7 (Berkeley) 6/16/94
  */
 
-#ifndef _DB_H_
-#define	_DB_H_
+/* BSD db header from OpenBSD 7.0 source code: include/db.h */
+
+#ifndef _BSDDB_H_
+#define	_BSDDB_H_
 
 #include <sys/types.h>
-
-#include <limits.h>
+#include <stdint.h>
 
 #define	RET_ERROR	-1		/* Return values. */
 #define	RET_SUCCESS	 0
 #define	RET_SPECIAL	 1
 
 #define	MAX_PAGE_NUMBER	0xffffffff	/* >= # of pages in a file */
-typedef u_int32_t	pgno_t;
+typedef uint32_t	pgno_t;
 #define	MAX_PAGE_OFFSET	65535		/* >= # of bytes in a page */
-typedef u_int16_t	indx_t;
+typedef uint16_t	indx_t;
 #define	MAX_REC_NUMBER	0xffffffff	/* >= # of records in a tree */
-typedef u_int32_t	recno_t;
+typedef uint32_t	recno_t;
 
 /* Key/data structure -- a Data-Base Thang. */
 typedef struct {
@@ -158,4 +159,4 @@ typedef struct {
 __BEGIN_DECLS
 DB *dbopen(const char *, int, int, DBTYPE, const void *);
 __END_DECLS
-#endif /* !_DB_H_ */
+#endif /* !_BSDDB_H_ */

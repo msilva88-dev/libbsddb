@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_open.c,v 1.19 2015/12/28 22:08:18 mmcc Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,18 +43,16 @@
  * is wholly independent of the Postgres code.
  */
 
+#define _GNU_SOURCE
 #include <sys/stat.h>
-
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <signal.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include <db.h>
+#include "../internal/db.h"
 #include "btree.h"
 
 #ifdef DEBUG
@@ -404,11 +405,11 @@ tmp(void)
 static int
 byteorder(void)
 {
-	u_int32_t x;
-	u_char *p;
+	uint32_t x;
+	unsigned char *p;
 
 	x = 0x01020304;
-	p = (u_char *)&x;
+	p = (unsigned char *)&x;
 	switch (*p) {
 	case 1:
 		return (BIG_ENDIAN);

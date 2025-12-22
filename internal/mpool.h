@@ -1,9 +1,11 @@
-/*	$OpenBSD: mpool.h,v 1.1 2015/09/09 15:35:24 guenther Exp $	*/
-/*	$NetBSD: mpool.h,v 1.7 1996/05/03 21:13:41 cgd Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1991, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,14 +30,14 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)mpool.h	8.4 (Berkeley) 11/2/95
  */
 
-#ifndef _MPOOL_H_ 
-#define _MPOOL_H_
+#ifndef _LIBBSDDB_MPOOL_INT_H
+#define _LIBBSDDB_MPOOL_INT_H
 
 #include <sys/queue.h>
+#include "../include/bsddb.h"
+#include "features.h"
 
 /*
  * The memory pool scheme is a simple one.  Each in-memory page is referenced
@@ -57,7 +59,7 @@ typedef struct _bkt {
 #define	MPOOL_DIRTY	0x01		/* page needs to be written */
 #define	MPOOL_PINNED	0x02		/* page is pinned into memory */
 #define	MPOOL_INUSE	0x04		/* page address is valid */
-	u_int8_t flags;			/* flags */
+	uint8_t flags;			/* flags */
 } BKT;
 
 typedef struct MPOOL {

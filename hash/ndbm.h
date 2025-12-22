@@ -15,4 +15,26 @@
  * <https://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-#include "../internal/btree.h"
+#include "../include/bsddb.h"
+
+#define DBM_INSERT 0
+#define DBM_SUFFIX ".db"
+
+typedef struct {
+	void *dptr;
+	size_t dsize;
+} datum;
+
+typedef DB DBM;
+
+int dbm_clearerr(DBM *);
+void dbm_close(DBM *);
+int dbm_delete(DBM *, datum);
+int dbm_error(DBM *);
+datum dbm_fetch(DBM *, datum);
+datum dbm_firstkey(DBM *);
+datum dbm_nextkey(DBM *);
+DBM *dbm_open(const char *, int, mode_t);
+int dbm_store(DBM *, datum, datum, int);
+int dbm_dirfno(DBM *);
+int dbm_rdonly(DBM *);

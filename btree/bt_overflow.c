@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_overflow.c,v 1.11 2015/01/16 16:48:51 deraadt Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,14 +35,11 @@
  * SUCH DAMAGE.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <db.h>
 #include "btree.h"
 
-#define MINIMUM(a, b)	(((a) < (b)) ? (a) : (b))
+#define MINIMUM(a, b) (((a) < (b)) ? (a) : (b))
 
 /*
  * Big key/data code.
@@ -63,7 +63,7 @@
  *
  * Parameters:
  *	t:	tree
- *	p:	pointer to { pgno_t, u_int32_t }
+ *	p:	pointer to { pgno_t, uint32_t }
  *	buf:	storage address
  *	bufsz:	storage size
  *
@@ -76,11 +76,11 @@ __ovfl_get(BTREE *t, void *p, size_t *ssz, void **buf, size_t *bufsz)
 	PAGE *h;
 	pgno_t pg;
 	size_t nb, plen;
-	u_int32_t sz;
+	uint32_t sz;
 	void *tp;
 
 	memmove(&pg, p, sizeof(pgno_t));
-	memmove(&sz, (char *)p + sizeof(pgno_t), sizeof(u_int32_t));
+	memmove(&sz, (char *)p + sizeof(pgno_t), sizeof(uint32_t));
 	*ssz = sz;
 
 #ifdef DEBUG
@@ -133,7 +133,7 @@ __ovfl_put(BTREE *t, const DBT *dbt, pgno_t *pg)
 	void *p;
 	pgno_t npg;
 	size_t nb, plen;
-	u_int32_t sz;
+	uint32_t sz;
 
 	/*
 	 * Allocate pages and copy the key/data record into them.  Store the
@@ -172,7 +172,7 @@ __ovfl_put(BTREE *t, const DBT *dbt, pgno_t *pg)
  *
  * Parameters:
  *	t:	tree
- *	p:	pointer to { pgno_t, u_int32_t }
+ *	p:	pointer to { pgno_t, uint32_t }
  *
  * Returns:
  *	RET_ERROR, RET_SUCCESS
@@ -183,10 +183,10 @@ __ovfl_delete(BTREE *t, void *p)
 	PAGE *h;
 	pgno_t pg;
 	size_t plen;
-	u_int32_t sz;
+	uint32_t sz;
 
 	memmove(&pg, p, sizeof(pgno_t));
-	memmove(&sz, (char *)p + sizeof(pgno_t), sizeof(u_int32_t));
+	memmove(&sz, (char *)p + sizeof(pgno_t), sizeof(uint32_t));
 
 #ifdef DEBUG
 	if (pg == P_INVALID || sz == 0)

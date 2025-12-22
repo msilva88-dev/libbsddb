@@ -1,11 +1,14 @@
-/*	$OpenBSD: rec_open.c,v 1.14 2020/12/01 16:19:38 millert Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,18 +35,10 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
-
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include <db.h>
+#include "../internal/db.h"
 #include "recno.h"
 
 DB *

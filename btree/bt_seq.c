@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_seq.c,v 1.12 2022/12/27 17:10:06 jmc Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,14 +35,8 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
 #include <errno.h>
-#include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
-
-#include <db.h>
 #include "btree.h"
 
 static int __bt_first(BTREE *, const DBT *, EPG *, int *);
@@ -68,7 +65,7 @@ static int __bt_seqset(BTREE *, EPG *, DBT *, int);
  *	RET_ERROR, RET_SUCCESS or RET_SPECIAL if there's no next key.
  */
 int
-__bt_seq(const DB *dbp, DBT *key, DBT *data, u_int flags)
+__bt_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 {
 	BTREE *t;
 	EPG e;
@@ -420,7 +417,7 @@ __bt_first(BTREE *t, const DBT *key, EPG *erval, int *exactp)
  *    idx:	page index
  */
 void
-__bt_setcur(BTREE *t, pgno_t pgno, u_int idx)
+__bt_setcur(BTREE *t, pgno_t pgno, unsigned int idx)
 {
 	/* Lose any already deleted key. */
 	if (t->bt_cursor.key.data != NULL) {

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 
 /*
- * Copyright (c) 1990, 1993, 1994
+ * Copyright (c) 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
@@ -35,14 +35,46 @@
  * SUCH DAMAGE.
  */
 
-#include "extern.h"
+/* ndbm header from OpenBSD 7.0 source code: include/ndbm.h */
 
-uint32_t
-__log2(uint32_t num)
-{
-	uint32_t i, limit;
+#ifndef _NDBM_H_
+#define	_NDBM_H_
 
-	limit = 1;
-	for (i = 0; limit < num; limit = limit << 1, i++);
-	return (i);
-}
+#include <bsddb.h>
+
+/* Map dbm interface onto db(3). */
+#define DBM_RDONLY	O_RDONLY
+
+/* Flags to dbm_store(). */
+#define DBM_INSERT      0
+#define DBM_REPLACE     1
+
+/*
+ * The db(3) support for ndbm(3) always appends this suffix to the
+ * file name to avoid overwriting the user's original database.
+ */
+#define	DBM_SUFFIX	".db"
+
+typedef struct {
+	void *dptr;
+	size_t dsize;
+} datum;
+
+typedef DB DBM;
+#define	dbm_pagfno(a)	DBM_PAGFNO_NOT_AVAILABLE
+
+__BEGIN_DECLS
+int	 dbm_clearerr(DBM *);
+void	 dbm_close(DBM *);
+int	 dbm_delete(DBM *, datum);
+int	 dbm_error(DBM *);
+datum	 dbm_fetch(DBM *, datum);
+datum	 dbm_firstkey(DBM *);
+datum	 dbm_nextkey(DBM *);
+DBM	*dbm_open(const char *, int, mode_t);
+int	 dbm_store(DBM *, datum, datum, int);
+int	 dbm_dirfno(DBM *);
+int	 dbm_rdonly(DBM *);
+__END_DECLS
+
+#endif /* !_NDBM_H_ */

@@ -1,8 +1,11 @@
-/*	$OpenBSD: recno.h,v 1.5 2003/06/02 20:18:34 millert Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,11 +30,13 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)recno.h	8.1 (Berkeley) 6/4/93
  */
+
+#ifndef _LIBBSDDB_RECNO_INT_H
+#define _LIBBSDDB_RECNO_INT_H
 
 enum SRCHOP { SDELETE, SINSERT, SEARCH};	/* Rec_search operation. */
 
-#include "../btree/btree.h"
 #include "extern.h"
+
+#endif

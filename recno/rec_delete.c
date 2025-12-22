@@ -1,11 +1,14 @@
-/*	$OpenBSD: rec_delete.c,v 1.10 2005/08/05 13:03:00 espie Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,13 +35,8 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
 #include <errno.h>
-#include <stdio.h>
 #include <string.h>
-
-#include <db.h>
 #include "recno.h"
 
 static int rec_rdelete(BTREE *, recno_t);
@@ -55,7 +53,7 @@ static int rec_rdelete(BTREE *, recno_t);
  *	RET_ERROR, RET_SUCCESS and RET_SPECIAL if the key not found.
  */
 int
-__rec_delete(const DB *dbp, const DBT *key, u_int flags)
+__rec_delete(const DB *dbp, const DBT *key, unsigned int flags)
 {
 	BTREE *t;
 	recno_t nrec;
@@ -140,11 +138,11 @@ rec_rdelete(BTREE *t, recno_t nrec)
  *	RET_SUCCESS, RET_ERROR.
  */
 int
-__rec_dleaf(BTREE *t, PAGE *h, u_int32_t idx)
+__rec_dleaf(BTREE *t, PAGE *h, uint32_t idx)
 {
 	RLEAF *rl;
 	indx_t *ip, cnt, offset;
-	u_int32_t nbytes;
+	uint32_t nbytes;
 	char *from;
 	void *to;
 

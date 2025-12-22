@@ -1,10 +1,12 @@
-.\"	$OpenBSD: dbopen.3,v 1.28 2015/09/10 10:20:55 jmc Exp $
-.\"	$NetBSD: dbopen.3,v 1.6 1995/02/27 13:23:25 cgd Exp $
+.\" SPDX-License-Identifier: BSD-3-Clause
 .\"
 .\" Copyright (c) 1997, Phillip F Knaack. All rights reserved.
 .\"
 .\" Copyright (c) 1990, 1993
 .\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Modifications to support HyperbolaBSD:
+.\" Copyright (c) 2025 Hyperbola Project
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -29,9 +31,6 @@
 .\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
-.\"
-.\"	@(#)dbopen.3	8.5 (Berkeley) 1/2/94
-.\"
 .Dd $Mdocdate: September 10 2015 $
 .Dt DBOPEN 3
 .Os
@@ -153,7 +152,7 @@ typedef struct {
 	    unsigned int flags);
 	int (*put)(const DB *db, DBT *key, const DBT *data,
 	    unsigned int flags);
-	int (*sync)(const DB *db, u_int flags);
+	int (*sync)(const DB *db, unsigned int flags);
 	int (*seq)(const DB *db, DBT *key, DBT *data,
 	    unsigned int flags);
 } DB;

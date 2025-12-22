@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_close.c,v 1.11 2021/10/24 10:05:22 jsg Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,12 +36,9 @@
  */
 
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include <db.h>
 #include "btree.h"
 
 static int bt_meta(BTREE *);
@@ -107,7 +107,7 @@ __bt_close(DB *dbp)
  *	RET_SUCCESS, RET_ERROR.
  */
 int
-__bt_sync(const DB *dbp, u_int flags)
+__bt_sync(const DB *dbp, unsigned int flags)
 {
 	BTREE *t;
 	int status;

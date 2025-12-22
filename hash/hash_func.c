@@ -1,11 +1,14 @@
-/*	$OpenBSD: hash_func.c,v 1.11 2016/05/29 20:47:49 guenther Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Margo Seltzer.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,23 +35,21 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
-#include <db.h>
+#include "../include/bsddb.h"
 
 /* Chris Torek's hash function. */
 u_int32_t
 __default_hash(const void *key, size_t len)
 {
-	u_int32_t h, loop;
-	u_int8_t *k;
+	uint32_t h, loop;
+	uint8_t *k;
 
 #define HASH4a   h = (h << 5) - h + *k++;
 #define HASH4b   h = (h << 5) + h + *k++;
 #define HASH4 HASH4b
 
 	h = 0;
-	k = (u_int8_t *)key;
+	k = (uint8_t *)key;
 	if (len > 0) {
 		loop = (len + 8 - 1) >> 3;
 

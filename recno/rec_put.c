@@ -1,8 +1,11 @@
-/*	$OpenBSD: rec_put.c,v 1.11 2007/08/08 07:16:50 ray Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,14 +32,9 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <db.h>
 #include "recno.h"
 
 /*
@@ -53,7 +51,7 @@
  *	already in the tree and R_NOOVERWRITE specified.
  */
 int
-__rec_put(const DB *dbp, DBT *key, const DBT *data, u_int flags)
+__rec_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 {
 	BTREE *t;
 	DBT fdata, tdata;
@@ -177,14 +175,14 @@ einval:		errno = EINVAL;
  *	RET_ERROR, RET_SUCCESS
  */
 int
-__rec_iput(BTREE *t, recno_t nrec, const DBT *data, u_int flags)
+__rec_iput(BTREE *t, recno_t nrec, const DBT *data, unsigned int flags)
 {
 	DBT tdata;
 	EPG *e;
 	PAGE *h;
 	indx_t idx, nxtindex;
 	pgno_t pg;
-	u_int32_t nbytes;
+	uint32_t nbytes;
 	int dflags, status;
 	char *dest, db[NOVFLSIZE];
 
@@ -200,7 +198,7 @@ __rec_iput(BTREE *t, recno_t nrec, const DBT *data, u_int flags)
 		tdata.data = db;
 		tdata.size = NOVFLSIZE;
 		*(pgno_t *)db = pg;
-		*(u_int32_t *)(db + sizeof(pgno_t)) = data->size;
+		*(uint32_t *)(db + sizeof(pgno_t)) = data->size;
 		dflags = P_BIGDATA;
 		data = &tdata;
 	} else

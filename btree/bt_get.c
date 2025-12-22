@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_get.c,v 1.8 2005/08/05 13:02:59 espie Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,13 +35,7 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
 #include <errno.h>
-#include <stddef.h>
-#include <stdio.h>
-
-#include <db.h>
 #include "btree.h"
 
 /*
@@ -54,7 +51,7 @@
  *	RET_ERROR, RET_SUCCESS and RET_SPECIAL if the key not found.
  */
 int
-__bt_get(const DB *dbp, const DBT *key, DBT *data, u_int flags)
+__bt_get(const DB *dbp, const DBT *key, DBT *data, unsigned int flags)
 {
 	BTREE *t;
 	EPG *e;

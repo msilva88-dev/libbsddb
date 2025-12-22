@@ -1,11 +1,14 @@
-/*	$OpenBSD: bt_split.c,v 1.13 2005/08/05 13:03:00 espie Exp $	*/
+/* SPDX-License-Identifier: BSD-3-Clause */
 
-/*-
+/*
  * Copyright (c) 1990, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
  * Mike Olson.
+ *
+ * Modifications to support HyperbolaBSD:
+ * Copyright (c) 2025 Hyperbola Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,14 +35,9 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-
-#include <limits.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <db.h>
+#include "../internal/db.h"
 #include "btree.h"
 
 static int	 bt_broot(BTREE *, PAGE *, PAGE *, PAGE *);
@@ -51,7 +49,7 @@ static int	 bt_rroot(BTREE *, PAGE *, PAGE *, PAGE *);
 static recno_t	 rec_total(PAGE *);
 
 #ifdef STATISTICS
-u_long	bt_rootsplit, bt_split, bt_sortsplit, bt_pfxsaved;
+unsigned long bt_rootsplit, bt_split, bt_sortsplit, bt_pfxsaved;
 #endif
 
 /*
@@ -71,7 +69,7 @@ u_long	bt_rootsplit, bt_split, bt_sortsplit, bt_pfxsaved;
  */
 int
 __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
-    size_t ilen, u_int32_t argskip)
+    size_t ilen, uint32_t argskip)
 {
 	BINTERNAL *bi;
 	BLEAF *bl, *tbl;
@@ -79,8 +77,8 @@ __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
 	EPGNO *parent;
 	PAGE *h, *l, *r, *lchild, *rchild;
 	indx_t nxtindex;
-	u_int16_t skip;
-	u_int32_t n, nbytes, nksize;
+	uint16_t skip;
+	uint32_t n, nbytes, nksize;
 	int parentsplit;
 	char *dest;
 
@@ -511,7 +509,7 @@ bt_broot(BTREE *t, PAGE *h, PAGE *l, PAGE *r)
 {
 	BINTERNAL *bi;
 	BLEAF *bl;
-	u_int32_t nbytes;
+	uint32_t nbytes;
 	char *dest;
 
 	/*
@@ -591,7 +589,7 @@ bt_psplit(BTREE *t, PAGE *h, PAGE *l, PAGE *r, indx_t *pskip, size_t ilen)
 	PAGE *rval;
 	void *src;
 	indx_t full, half, nxt, off, skip, top, used;
-	u_int32_t nbytes;
+	uint32_t nbytes;
 	int bigkeycnt, isbigkey;
 
 	/*
