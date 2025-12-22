@@ -54,7 +54,7 @@ __rec_open(const char *fname, int flags, int mode, const RECNOINFO *openinfo,
 
 	/* Open the user's file -- if this fails, we're done. */
 	if (fname != NULL && (rfd = open(fname, flags, mode)) < 0)
-		return (NULL);
+		return NULL;
 
 	/* Create a btree in memory (backed by disk). */
 	dbp = NULL;
@@ -165,7 +165,7 @@ slow:			if ((t->bt_rfp = fdopen(rfd, "r")) == NULL)
 	    !F_ISSET(t, R_EOF | R_INMEM) &&
 	    t->bt_irec(t, MAX_REC_NUMBER) == RET_ERROR)
 		goto err;
-	return (dbp);
+	return dbp;
 
 einval:	errno = EINVAL;
 err:	sverrno = errno;
@@ -174,7 +174,7 @@ err:	sverrno = errno;
 	if (fname != NULL)
 		(void)close(rfd);
 	errno = sverrno;
-	return (NULL);
+	return NULL;
 }
 
 int
@@ -193,7 +193,7 @@ __rec_fd(const DB *dbp)
 	/* In-memory database can't have a file descriptor. */
 	if (F_ISSET(t, R_INMEM)) {
 		errno = ENOENT;
-		return (-1);
+		return -1;
 	}
-	return (t->bt_rfd);
+	return t->bt_rfd;
 }

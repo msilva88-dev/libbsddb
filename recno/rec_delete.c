@@ -72,7 +72,7 @@ __rec_delete(const DB *dbp, const DBT *key, unsigned int flags)
 		if ((nrec = *(recno_t *)key->data) == 0)
 			goto einval;
 		if (nrec > t->bt_nrecs)
-			return (RET_SPECIAL);
+			return RET_SPECIAL;
 		--nrec;
 		status = rec_rdelete(t, nrec);
 		break;
@@ -80,19 +80,19 @@ __rec_delete(const DB *dbp, const DBT *key, unsigned int flags)
 		if (!F_ISSET(&t->bt_cursor, CURS_INIT))
 			goto einval;
 		if (t->bt_nrecs == 0)
-			return (RET_SPECIAL);
+			return RET_SPECIAL;
 		status = rec_rdelete(t, t->bt_cursor.rcursor - 1);
 		if (status == RET_SUCCESS)
 			--t->bt_cursor.rcursor;
 		break;
 	default:
 einval:		errno = EINVAL;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
 
 	if (status == RET_SUCCESS)
 		F_SET(t, B_MODIFIED | R_MODIFIED);
-	return (status);
+	return status;
 }
 
 /*
@@ -114,17 +114,17 @@ rec_rdelete(BTREE *t, recno_t nrec)
 
 	/* Find the record; __rec_search pins the page. */
 	if ((e = __rec_search(t, nrec, SDELETE)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/* Delete the record. */
 	h = e->page;
 	status = __rec_dleaf(t, h, e->index);
 	if (status != RET_SUCCESS) {
 		mpool_put(t->bt_mp, h, 0);
-		return (status);
+		return status;
 	}
 	mpool_put(t->bt_mp, h, MPOOL_DIRTY);
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -158,7 +158,7 @@ __rec_dleaf(BTREE *t, PAGE *h, uint32_t idx)
 	 */
 	to = rl = GETRLEAF(h, idx);
 	if (rl->flags & P_BIGDATA && __ovfl_delete(t, rl->bytes) == RET_ERROR)
-		return (RET_ERROR);
+		return RET_ERROR;
 	nbytes = NRLEAF(rl);
 
 	/*
@@ -174,8 +174,8 @@ __rec_dleaf(BTREE *t, PAGE *h, uint32_t idx)
 		if (ip[0] < offset)
 			ip[0] += nbytes;
 	for (cnt = &h->linp[NEXTINDEX(h)] - ip; --cnt; ++ip)
-		ip[0] = ip[1] < offset ? ip[1] + nbytes : ip[1];
+		ip[0] = (ip[1] < offset) ? ip[1] + nbytes : ip[1];
 	h->lower -= sizeof(indx_t);
 	--t->bt_nrecs;
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }

@@ -79,7 +79,7 @@ __rec_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 		if (t->bt_rdata.size < t->bt_reclen) {
 			tp = realloc(t->bt_rdata.data, t->bt_reclen);
 			if (tp == NULL)
-				return (RET_ERROR);
+				return RET_ERROR;
 			t->bt_rdata.data = tp;
 			t->bt_rdata.size = t->bt_reclen;
 		}
@@ -118,11 +118,11 @@ __rec_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 		if ((nrec = *(recno_t *)key->data) == 0)
 			goto einval;
 		if (nrec <= t->bt_nrecs)
-			return (RET_SPECIAL);
+			return RET_SPECIAL;
 		break;
 	default:
 einval:		errno = EINVAL;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
 
 	/*
@@ -132,12 +132,12 @@ einval:		errno = EINVAL;
 	if (nrec > t->bt_nrecs) {
 		if (!F_ISSET(t, R_EOF | R_INMEM) &&
 		    t->bt_irec(t, nrec) == RET_ERROR)
-			return (RET_ERROR);
+			return RET_ERROR;
 		if (nrec > t->bt_nrecs + 1) {
 			if (F_ISSET(t, R_FIXLEN)) {
 				if ((tdata.data =
 				    (void *)malloc(t->bt_reclen)) == NULL)
-					return (RET_ERROR);
+					return RET_ERROR;
 				tdata.size = t->bt_reclen;
 				memset(tdata.data, t->bt_bval, tdata.size);
 			} else {
@@ -147,20 +147,20 @@ einval:		errno = EINVAL;
 			while (nrec > t->bt_nrecs + 1)
 				if (__rec_iput(t,
 				    t->bt_nrecs, &tdata, 0) != RET_SUCCESS)
-					return (RET_ERROR);
+					return RET_ERROR;
 			if (F_ISSET(t, R_FIXLEN))
 				free(tdata.data);
 		}
 	}
 
 	if ((status = __rec_iput(t, nrec - 1, &fdata, flags)) != RET_SUCCESS)
-		return (status);
+		return status;
 
 	if (flags == R_SETCURSOR)
 		t->bt_cursor.rcursor = nrec;
-	
+
 	F_SET(t, R_MODIFIED);
-	return (__rec_ret(t, NULL, nrec, key, NULL));
+	return __rec_ret(t, NULL, nrec, key, NULL);
 }
 
 /*
@@ -194,7 +194,7 @@ __rec_iput(BTREE *t, recno_t nrec, const DBT *data, unsigned int flags)
 	 */
 	if (data->size > t->bt_ovflsize) {
 		if (__ovfl_put(t, data, &pg) == RET_ERROR)
-			return (RET_ERROR);
+			return RET_ERROR;
 		tdata.data = db;
 		tdata.size = NOVFLSIZE;
 		*(pgno_t *)db = pg;
@@ -206,9 +206,9 @@ __rec_iput(BTREE *t, recno_t nrec, const DBT *data, unsigned int flags)
 
 	/* __rec_search pins the returned page. */
 	if ((e = __rec_search(t, nrec,
-	    nrec > t->bt_nrecs || flags == R_IAFTER || flags == R_IBEFORE ?
+	    (nrec > t->bt_nrecs || flags == R_IAFTER || flags == R_IBEFORE) ?
 	    SINSERT : SEARCH)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	h = e->page;
 	idx = e->index;
@@ -229,7 +229,7 @@ __rec_iput(BTREE *t, recno_t nrec, const DBT *data, unsigned int flags)
 		if (nrec < t->bt_nrecs &&
 		    __rec_dleaf(t, h, idx) == RET_ERROR) {
 			mpool_put(t->bt_mp, h, 0);
-			return (RET_ERROR);
+			return RET_ERROR;
 		}
 		break;
 	}
@@ -244,7 +244,7 @@ __rec_iput(BTREE *t, recno_t nrec, const DBT *data, unsigned int flags)
 		status = __bt_split(t, h, NULL, data, dflags, nbytes, idx);
 		if (status == RET_SUCCESS)
 			++t->bt_nrecs;
-		return (status);
+		return status;
 	}
 
 	if (idx < (nxtindex = NEXTINDEX(h)))
@@ -260,5 +260,5 @@ __rec_iput(BTREE *t, recno_t nrec, const DBT *data, unsigned int flags)
 	F_SET(t, B_MODIFIED);
 	mpool_put(t->bt_mp, h, MPOOL_DIRTY);
 
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }

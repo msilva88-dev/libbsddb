@@ -68,11 +68,11 @@ __bt_close(DB *dbp)
 
 	/* Sync the tree. */
 	if (__bt_sync(dbp, 0) == RET_ERROR)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/* Close the memory pool. */
 	if (mpool_close(t->bt_mp) == RET_ERROR)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/* Free random memory. */
 	if (t->bt_cursor.key.data != NULL) {
@@ -94,7 +94,7 @@ __bt_close(DB *dbp)
 	fd = t->bt_fd;
 	free(t);
 	free(dbp);
-	return (close(fd) ? RET_ERROR : RET_SUCCESS);
+	return close(fd) ? RET_ERROR : RET_SUCCESS;
 }
 
 /*
@@ -123,19 +123,19 @@ __bt_sync(const DB *dbp, unsigned int flags)
 	/* Sync doesn't currently take any flags. */
 	if (flags != 0) {
 		errno = EINVAL;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
 
 	if (F_ISSET(t, B_INMEM | B_RDONLY) || !F_ISSET(t, B_MODIFIED))
-		return (RET_SUCCESS);
+		return RET_SUCCESS;
 
 	if (F_ISSET(t, B_METADIRTY) && bt_meta(t) == RET_ERROR)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	if ((status = mpool_sync(t->bt_mp)) == RET_SUCCESS)
 		F_CLR(t, B_MODIFIED);
 
-	return (status);
+	return status;
 }
 
 /*
@@ -154,7 +154,7 @@ bt_meta(BTREE *t)
 	void *p;
 
 	if ((p = mpool_get(t->bt_mp, P_META, 0)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/* Fill in metadata. */
 	m.magic = BTREEMAGIC;
@@ -166,5 +166,5 @@ bt_meta(BTREE *t)
 
 	memmove(p, &m, sizeof(BTMETA));
 	mpool_put(t->bt_mp, p, MPOOL_DIRTY);
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }

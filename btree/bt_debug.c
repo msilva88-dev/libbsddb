@@ -278,7 +278,7 @@ __bt_stat(DB *dbp)
 	}
 
 	(void)fprintf(stderr, "%d level%s with %lu keys",
-	    levels, levels == 1 ? "" : "s", nkeys);
+	    levels, (levels == 1) ? "" : "s", nkeys);
 	if (F_ISSET(t, R_RECNO))
 		(void)fprintf(stderr, " (%u header count)", t->bt_nrecs);
 	(void)fprintf(stderr,

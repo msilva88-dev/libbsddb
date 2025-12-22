@@ -68,14 +68,14 @@ __bt_get(const DB *dbp, const DBT *key, DBT *data, unsigned int flags)
 	/* Get currently doesn't take any flags. */
 	if (flags) {
 		errno = EINVAL;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
 
 	if ((e = __bt_search(t, key, &exact)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 	if (!exact) {
 		mpool_put(t->bt_mp, e->page, 0);
-		return (RET_SPECIAL);
+		return RET_SPECIAL;
 	}
 
 	status = __bt_ret(t, e, NULL, NULL, data, &t->bt_rdata, 0);
@@ -88,5 +88,5 @@ __bt_get(const DB *dbp, const DBT *key, DBT *data, unsigned int flags)
 		mpool_put(t->bt_mp, e->page, 0);
 	else
 		t->bt_pinned = e->page;
-	return (status);
+	return status;
 }

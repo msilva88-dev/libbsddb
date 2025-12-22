@@ -99,7 +99,7 @@ __bt_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 		break;
 	default:
 		errno = EINVAL;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
 
 	if (status == RET_SUCCESS) {
@@ -117,7 +117,7 @@ __bt_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 		else
 			t->bt_pinned = e.page;
 	}
-	return (status);
+	return status;
 }
 
 /*
@@ -156,20 +156,20 @@ __bt_seqset(BTREE *t, EPG *ep, DBT *key, int flags)
 		 */
 		if (key->data == NULL || key->size == 0) {
 			errno = EINVAL;
-			return (RET_ERROR);
+			return RET_ERROR;
 		}
-		return (__bt_first(t, key, ep, &exact));
+		return __bt_first(t, key, ep, &exact);
 	case R_FIRST:				/* First record. */
 	case R_NEXT:
 		/* Walk down the left-hand side of the tree. */
 		for (pg = P_ROOT;;) {
 			if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-				return (RET_ERROR);
+				return RET_ERROR;
 
 			/* Check for an empty tree. */
 			if (NEXTINDEX(h) == 0) {
 				mpool_put(t->bt_mp, h, 0);
-				return (RET_SPECIAL);
+				return RET_SPECIAL;
 			}
 
 			if (h->flags & (P_BLEAF | P_RLEAF))
@@ -185,12 +185,12 @@ __bt_seqset(BTREE *t, EPG *ep, DBT *key, int flags)
 		/* Walk down the right-hand side of the tree. */
 		for (pg = P_ROOT;;) {
 			if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-				return (RET_ERROR);
+				return RET_ERROR;
 
 			/* Check for an empty tree. */
 			if (NEXTINDEX(h) == 0) {
 				mpool_put(t->bt_mp, h, 0);
-				return (RET_SPECIAL);
+				return RET_SPECIAL;
 			}
 
 			if (h->flags & (P_BLEAF | P_RLEAF))
@@ -203,7 +203,7 @@ __bt_seqset(BTREE *t, EPG *ep, DBT *key, int flags)
 		ep->index = NEXTINDEX(h) - 1;
 		break;
 	}
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -244,11 +244,11 @@ __bt_seqadv(BTREE *t, EPG *ep, int flags)
 	 * a record there, return it.
 	 */
 	if (F_ISSET(c, CURS_ACQUIRE))
-		return (__bt_first(t, &c->key, ep, &exact));
+		return __bt_first(t, &c->key, ep, &exact);
 
 	/* Get the page referenced by the cursor. */
 	if ((h = mpool_get(t->bt_mp, c->pg.pgno, 0)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/*
  	 * Find the next/previous record in the tree and point the cursor at
@@ -268,9 +268,9 @@ __bt_seqadv(BTREE *t, EPG *ep, int flags)
 			pg = h->nextpg;
 			mpool_put(t->bt_mp, h, 0);
 			if (pg == P_INVALID)
-				return (RET_SPECIAL);
+				return RET_SPECIAL;
 			if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-				return (RET_ERROR);
+				return RET_ERROR;
 			idx = 0;
 		}
 		break;
@@ -284,16 +284,16 @@ __bt_seqadv(BTREE *t, EPG *ep, int flags)
 usecurrent:		F_CLR(c, CURS_AFTER | CURS_BEFORE);
 			ep->page = h;
 			ep->index = c->pg.index;
-			return (RET_SUCCESS);
+			return RET_SUCCESS;
 		}
 		idx = c->pg.index;
 		if (idx == 0) {
 			pg = h->prevpg;
 			mpool_put(t->bt_mp, h, 0);
 			if (pg == P_INVALID)
-				return (RET_SPECIAL);
+				return RET_SPECIAL;
 			if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-				return (RET_ERROR);
+				return RET_ERROR;
 			idx = NEXTINDEX(h) - 1;
 		} else
 			--idx;
@@ -302,7 +302,7 @@ usecurrent:		F_CLR(c, CURS_AFTER | CURS_BEFORE);
 
 	ep->page = h;
 	ep->index = idx;
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -335,13 +335,13 @@ __bt_first(BTREE *t, const DBT *key, EPG *erval, int *exactp)
 	 * page) and return it.
 	 */
 	if ((ep = __bt_search(t, key, exactp)) == NULL)
-		return (0);
+		return 0;
 	if (*exactp) {
 		if (F_ISSET(t, B_NODUPS)) {
 			*erval = *ep;
-			return (RET_SUCCESS);
+			return RET_SUCCESS;
 		}
-			
+
 		/*
 		 * Walk backwards, as long as the entry matches and there are
 		 * keys left in the tree.  Save a copy of each match in case
@@ -371,7 +371,7 @@ __bt_first(BTREE *t, const DBT *key, EPG *erval, int *exactp)
 					if (h->pgno == save.page->pgno)
 						mpool_put(t->bt_mp,
 						    save.page, 0);
-					return (RET_ERROR);
+					return RET_ERROR;
 				}
 				ep->page = h;
 				ep->index = NEXTINDEX(h);
@@ -388,7 +388,7 @@ __bt_first(BTREE *t, const DBT *key, EPG *erval, int *exactp)
 			mpool_put(t->bt_mp, h, 0);
 
 		*erval = save;
-		return (RET_SUCCESS);
+		return RET_SUCCESS;
 	}
 
 	/* If at the end of a page, find the next entry. */
@@ -397,14 +397,14 @@ __bt_first(BTREE *t, const DBT *key, EPG *erval, int *exactp)
 		pg = h->nextpg;
 		mpool_put(t->bt_mp, h, 0);
 		if (pg == P_INVALID)
-			return (RET_SPECIAL);
+			return RET_SPECIAL;
 		if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 		ep->index = 0;
 		ep->page = h;
 	}
 	*erval = *ep;
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*

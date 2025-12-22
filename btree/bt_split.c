@@ -89,11 +89,11 @@ __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
 	 * are pinned.
 	 */
 	skip = argskip;
-	h = sp->pgno == P_ROOT ?
+	h = (sp->pgno == P_ROOT) ?
 	    bt_root(t, sp, &l, &r, &skip, ilen) :
 	    bt_page(t, sp, &l, &r, &skip, ilen);
 	if (h == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/*
 	 * Insert the new key/data pair into the leaf page.  (Key inserts
@@ -201,7 +201,7 @@ __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
 		/* Split the parent page if necessary or shift the indices. */
 		if (h->upper - h->lower < nbytes + sizeof(indx_t)) {
 			sp = h;
-			h = h->pgno == P_ROOT ?
+			h = (h->pgno == P_ROOT) ?
 			    bt_root(t, h, &l, &r, &skip, nbytes) :
 			    bt_page(t, h, &l, &r, &skip, nbytes);
 			if (h == NULL)
@@ -294,7 +294,7 @@ __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
 	mpool_put(t->bt_mp, r, MPOOL_DIRTY);
 
 	/* Clear any pages left on the stack. */
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 
 	/*
 	 * If something fails in the above loop we were already walking back
@@ -307,7 +307,7 @@ err1:	mpool_put(t->bt_mp, lchild, MPOOL_DIRTY);
 err2:	mpool_put(t->bt_mp, l, 0);
 	mpool_put(t->bt_mp, r, 0);
 	__dbpanic(t->bt_dbp);
-	return (RET_ERROR);
+	return RET_ERROR;
 }
 
 /*
@@ -335,7 +335,7 @@ bt_page(BTREE *t, PAGE *h, PAGE **lp, PAGE **rp, indx_t *skip, size_t ilen)
 #endif
 	/* Put the new right page for the split into place. */
 	if ((r = __bt_new(t, &npg)) == NULL)
-		return (NULL);
+		return NULL;
 	r->pgno = npg;
 	r->lower = BTDATAOFF;
 	r->upper = t->bt_psize;
@@ -362,13 +362,13 @@ bt_page(BTREE *t, PAGE *h, PAGE **lp, PAGE **rp, indx_t *skip, size_t ilen)
 		*skip = 0;
 		*lp = h;
 		*rp = r;
-		return (r);
+		return r;
 	}
 
 	/* Put the new left page for the split into place. */
 	if ((l = (PAGE *)malloc(t->bt_psize)) == NULL) {
 		mpool_put(t->bt_mp, r, 0);
-		return (NULL);
+		return NULL;
 	}
 	memset(l, 0xff, t->bt_psize);
 	l->pgno = h->pgno;
@@ -383,7 +383,7 @@ bt_page(BTREE *t, PAGE *h, PAGE **lp, PAGE **rp, indx_t *skip, size_t ilen)
 		if ((tp = mpool_get(t->bt_mp, h->nextpg, 0)) == NULL) {
 			free(l);
 			/* XXX mpool_free(t->bt_mp, r->pgno); */
-			return (NULL);
+			return NULL;
 		}
 		tp->prevpg = r->pgno;
 		mpool_put(t->bt_mp, tp, MPOOL_DIRTY);
@@ -406,7 +406,7 @@ bt_page(BTREE *t, PAGE *h, PAGE **lp, PAGE **rp, indx_t *skip, size_t ilen)
 
 	*lp = h;
 	*rp = r;
-	return (tp);
+	return tp;
 }
 
 /*
@@ -436,7 +436,7 @@ bt_root(BTREE *t, PAGE *h, PAGE **lp, PAGE **rp, indx_t *skip, size_t ilen)
 	/* Put the new left and right pages for the split into place. */
 	if ((l = __bt_new(t, &lnpg)) == NULL ||
 	    (r = __bt_new(t, &rnpg)) == NULL)
-		return (NULL);
+		return NULL;
 	l->pgno = lnpg;
 	r->pgno = rnpg;
 	l->nextpg = r->pgno;
@@ -451,7 +451,7 @@ bt_root(BTREE *t, PAGE *h, PAGE **lp, PAGE **rp, indx_t *skip, size_t ilen)
 
 	*lp = l;
 	*rp = r;
-	return (tp);
+	return tp;
 }
 
 /*
@@ -475,12 +475,12 @@ bt_rroot(BTREE *t, PAGE *h, PAGE *l, PAGE *r)
 	h->linp[0] = h->upper = t->bt_psize - NRINTERNAL;
 	dest = (char *)h + h->upper;
 	WR_RINTERNAL(dest,
-	    l->flags & P_RLEAF ? NEXTINDEX(l) : rec_total(l), l->pgno);
+	    (l->flags & P_RLEAF) ? NEXTINDEX(l) : rec_total(l), l->pgno);
 
 	h->linp[1] = h->upper -= NRINTERNAL;
 	dest = (char *)h + h->upper;
 	WR_RINTERNAL(dest,
-	    r->flags & P_RLEAF ? NEXTINDEX(r) : rec_total(r), r->pgno);
+	    (r->flags & P_RLEAF) ? NEXTINDEX(r) : rec_total(r), r->pgno);
 
 	h->lower = BTDATAOFF + 2 * sizeof(indx_t);
 
@@ -489,7 +489,7 @@ bt_rroot(BTREE *t, PAGE *h, PAGE *l, PAGE *r)
 	h->flags |= P_RINTERNAL;
 	mpool_put(t->bt_mp, h, MPOOL_DIRTY);
 
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -540,7 +540,7 @@ bt_broot(BTREE *t, PAGE *h, PAGE *l, PAGE *r)
 		 */
 		if (bl->flags & P_BIGKEY &&
 		    bt_preserve(t, *(pgno_t *)bl->bytes) == RET_ERROR)
-			return (RET_ERROR);
+			return RET_ERROR;
 		break;
 	case P_BINTERNAL:
 		bi = GETBINTERNAL(r, 0);
@@ -562,7 +562,7 @@ bt_broot(BTREE *t, PAGE *h, PAGE *l, PAGE *r)
 	h->flags |= P_BINTERNAL;
 	mpool_put(t->bt_mp, h, MPOOL_DIRTY);
 
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -735,7 +735,7 @@ bt_psplit(BTREE *t, PAGE *h, PAGE *l, PAGE *r, indx_t *pskip, size_t ilen)
 	if (skip == top)
 		r->lower += sizeof(indx_t);
 
-	return (rval);
+	return rval;
 }
 
 /*
@@ -759,10 +759,10 @@ bt_preserve(BTREE *t, pgno_t pg)
 	PAGE *h;
 
 	if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 	h->flags |= P_PRESERVE;
 	mpool_put(t->bt_mp, h, MPOOL_DIRTY);
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -787,5 +787,5 @@ rec_total(PAGE *h)
 
 	for (recs = 0, nxt = 0, top = NEXTINDEX(h); nxt < top; ++nxt)
 		recs += GETRINTERNAL(h, nxt)->nrecs;
-	return (recs);
+	return recs;
 }

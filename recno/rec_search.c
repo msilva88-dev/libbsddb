@@ -71,7 +71,7 @@ __rec_search(BTREE *t, recno_t recno, enum SRCHOP op)
 		if (h->flags & P_RLEAF) {
 			t->bt_cur.page = h;
 			t->bt_cur.index = recno - total;
-			return (&t->bt_cur);
+			return &t->bt_cur;
 		}
 		for (idx = 0, top = NEXTINDEX(h);;) {
 			r = GETRINTERNAL(h, idx);
@@ -81,7 +81,7 @@ __rec_search(BTREE *t, recno_t recno, enum SRCHOP op)
 		}
 
 		BT_PUSH(t, pg, idx - 1);
-		
+
 		pg = r->pgno;
 		switch (op) {
 		case SDELETE:
@@ -111,5 +111,5 @@ err:	sverrno = errno;
 			mpool_put(t->bt_mp, h, MPOOL_DIRTY);
 		}
 	errno = sverrno;
-	return (NULL);
+	return NULL;
 }

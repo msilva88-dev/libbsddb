@@ -91,7 +91,7 @@ __ovfl_get(BTREE *t, void *p, size_t *ssz, void **buf, size_t *bufsz)
 	if (*bufsz < sz) {
 		tp = realloc(*buf, sz);
 		if (tp == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 		*buf = tp;
 		*bufsz = sz;
 	}
@@ -103,7 +103,7 @@ __ovfl_get(BTREE *t, void *p, size_t *ssz, void **buf, size_t *bufsz)
 	plen = t->bt_psize - BTDATAOFF;
 	for (p = *buf;; p = (char *)p + nb, pg = h->nextpg) {
 		if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 
 		nb = MINIMUM(sz, plen);
 		memmove(p, (char *)h + BTDATAOFF, nb);
@@ -112,7 +112,7 @@ __ovfl_get(BTREE *t, void *p, size_t *ssz, void **buf, size_t *bufsz)
 		if ((sz -= nb) == 0)
 			break;
 	}
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -143,7 +143,7 @@ __ovfl_put(BTREE *t, const DBT *dbt, pgno_t *pg)
 	for (last = NULL, p = dbt->data, sz = dbt->size;;
 	    p = (char *)p + plen, last = h) {
 		if ((h = __bt_new(t, &npg)) == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 
 		h->pgno = npg;
 		h->nextpg = h->prevpg = P_INVALID;
@@ -164,7 +164,7 @@ __ovfl_put(BTREE *t, const DBT *dbt, pgno_t *pg)
 			break;
 		}
 	}
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -193,12 +193,12 @@ __ovfl_delete(BTREE *t, void *p)
 		abort();
 #endif
 	if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/* Don't delete chains used by internal pages. */
 	if (h->flags & P_PRESERVE) {
 		mpool_put(t->bt_mp, h, 0);
-		return (RET_SUCCESS);
+		return RET_SUCCESS;
 	}
 
 	/* Step through the chain, calling the free routine for each page. */
@@ -208,7 +208,7 @@ __ovfl_delete(BTREE *t, void *p)
 		if (sz <= plen)
 			break;
 		if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 	}
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }

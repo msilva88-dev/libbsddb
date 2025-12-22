@@ -60,7 +60,7 @@ __rec_close(DB *dbp)
 	}
 
 	if (__rec_sync(dbp, 0) == RET_ERROR)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/* Committed to closing. */
 	status = RET_SUCCESS;
@@ -78,7 +78,7 @@ __rec_close(DB *dbp)
 	if (__bt_close(dbp) == RET_ERROR)
 		status = RET_ERROR;
 
-	return (status);
+	return status;
 }
 
 /*
@@ -109,18 +109,18 @@ __rec_sync(const DB *dbp, unsigned int flags)
 	}
 
 	if (flags == R_RECNOSYNC)
-		return (__bt_sync(dbp, 0));
+		return __bt_sync(dbp, 0);
 
 	if (F_ISSET(t, R_RDONLY | R_INMEM) || !F_ISSET(t, R_MODIFIED))
-		return (RET_SUCCESS);
+		return RET_SUCCESS;
 
 	/* Read any remaining records into the tree. */
 	if (!F_ISSET(t, R_EOF) && t->bt_irec(t, MAX_REC_NUMBER) == RET_ERROR)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/* Rewind the file descriptor. */
 	if (lseek(t->bt_rfd, 0, SEEK_SET) != 0)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/* Save the cursor. */
 	scursor = t->bt_cursor.rcursor;
@@ -137,7 +137,7 @@ __rec_sync(const DB *dbp, unsigned int flags)
 		status = (dbp->seq)(dbp, &key, &data, R_FIRST);
 		while (status == RET_SUCCESS) {
 			if (write(t->bt_rfd, data.data, data.size) != data.size)
-				return (RET_ERROR);
+				return RET_ERROR;
 			status = (dbp->seq)(dbp, &key, &data, R_NEXT);
 		}
 	} else {
@@ -149,7 +149,7 @@ __rec_sync(const DB *dbp, unsigned int flags)
 			iov[0].iov_base = data.data;
 			iov[0].iov_len = data.size;
 			if (writev(t->bt_rfd, iov, 2) != data.size + 1)
-				return (RET_ERROR);
+				return RET_ERROR;
 			status = (dbp->seq)(dbp, &key, &data, R_NEXT);
 		}
 	}
@@ -158,11 +158,11 @@ __rec_sync(const DB *dbp, unsigned int flags)
 	t->bt_cursor.rcursor = scursor;
 
 	if (status == RET_ERROR)
-		return (RET_ERROR);
+		return RET_ERROR;
 	if ((off = lseek(t->bt_rfd, 0, SEEK_CUR)) == -1)
-		return (RET_ERROR);
+		return RET_ERROR;
 	if (ftruncate(t->bt_rfd, off))
-		return (RET_ERROR);
+		return RET_ERROR;
 	F_CLR(t, R_MODIFIED);
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }

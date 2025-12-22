@@ -65,7 +65,7 @@ __bt_search(BTREE *t, const DBT *key, int *exactp)
 	BT_CLR(t);
 	for (pg = P_ROOT;;) {
 		if ((h = mpool_get(t->bt_mp, pg, 0)) == NULL)
-			return (NULL);
+			return NULL;
 
 		/* Do a binary search on the current page. */
 		t->bt_cur.page = h;
@@ -74,7 +74,7 @@ __bt_search(BTREE *t, const DBT *key, int *exactp)
 			if ((cmp = __bt_cmp(t, key, &t->bt_cur)) == 0) {
 				if (h->flags & P_BLEAF) {
 					*exactp = 1;
-					return (&t->bt_cur);
+					return &t->bt_cur;
 				}
 				goto next;
 			}
@@ -97,15 +97,15 @@ __bt_search(BTREE *t, const DBT *key, int *exactp)
 				if (base == 0 &&
 				    h->prevpg != P_INVALID &&
 				    __bt_sprev(t, h, key, exactp))
-					return (&t->bt_cur);
+					return &t->bt_cur;
 				if (base == NEXTINDEX(h) &&
 				    h->nextpg != P_INVALID &&
 				    __bt_snext(t, h, key, exactp))
-					return (&t->bt_cur);
+					return &t->bt_cur;
 			}
 			*exactp = 0;
 			t->bt_cur.index = base;
-			return (&t->bt_cur);
+			return &t->bt_cur;
 		}
 
 		/*
@@ -146,16 +146,16 @@ __bt_snext(BTREE *t, PAGE *h, const DBT *key, int *exactp)
 	 * match, or not as good as the one we already have.
 	 */
 	if ((e.page = mpool_get(t->bt_mp, h->nextpg, 0)) == NULL)
-		return (0);
+		return 0;
 	e.index = 0;
 	if (__bt_cmp(t, key, &e) == 0) {
 		mpool_put(t->bt_mp, h, 0);
 		t->bt_cur = e;
 		*exactp = 1;
-		return (1);
+		return 1;
 	}
 	mpool_put(t->bt_mp, e.page, 0);
-	return (0);
+	return 0;
 }
 
 /*
@@ -181,14 +181,14 @@ __bt_sprev(BTREE *t, PAGE *h, const DBT *key, int *exactp)
 	 * match, or not as good as the one we already have.
 	 */
 	if ((e.page = mpool_get(t->bt_mp, h->prevpg, 0)) == NULL)
-		return (0);
+		return 0;
 	e.index = NEXTINDEX(e.page) - 1;
 	if (__bt_cmp(t, key, &e) == 0) {
 		mpool_put(t->bt_mp, h, 0);
 		t->bt_cur = e;
 		*exactp = 1;
-		return (1);
+		return 1;
 	}
 	mpool_put(t->bt_mp, e.page, 0);
-	return (0);
+	return 0;
 }

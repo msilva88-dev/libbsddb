@@ -63,7 +63,7 @@ __rec_ret(BTREE *t, EPG *e, recno_t nrec, DBT *key, DBT *data)
 	if (sizeof(recno_t) > t->bt_rkey.size) {
 		p = realloc(t->bt_rkey.data, sizeof(recno_t));
 		if (p == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 		t->bt_rkey.data = p;
 		t->bt_rkey.size = sizeof(recno_t);
 	}
@@ -73,7 +73,7 @@ __rec_ret(BTREE *t, EPG *e, recno_t nrec, DBT *key, DBT *data)
 
 dataonly:
 	if (data == NULL)
-		return (RET_SUCCESS);
+		return RET_SUCCESS;
 
 	/*
 	 * We must copy big keys/data to make them contiguous.  Otherwise,
@@ -84,14 +84,14 @@ dataonly:
 	if (rl->flags & P_BIGDATA) {
 		if (__ovfl_get(t, rl->bytes,
 		    &data->size, &t->bt_rdata.data, &t->bt_rdata.size))
-			return (RET_ERROR);
+			return RET_ERROR;
 		data->data = t->bt_rdata.data;
 	} else if (F_ISSET(t, B_DB_LOCK)) {
 		/* Use +1 in case the first record retrieved is 0 length. */
 		if (rl->dsize + 1 > t->bt_rdata.size) {
 			p = realloc(t->bt_rdata.data, rl->dsize + 1);
 			if (p == NULL)
-				return (RET_ERROR);
+				return RET_ERROR;
 			t->bt_rdata.data = p;
 			t->bt_rdata.size = rl->dsize + 1;
 		}
@@ -102,5 +102,5 @@ dataonly:
 		data->size = rl->dsize;
 		data->data = rl->bytes;
 	}
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }

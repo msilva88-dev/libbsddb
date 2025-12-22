@@ -67,7 +67,7 @@ _dbm_open(const char *file, const char *suff, int flags, mode_t mode)
 	len = snprintf(path, sizeof path, "%s%s", file, suff);
 	if (len < 0 || len >= sizeof path) {
 		errno = ENAMETOOLONG;
-		return (NULL);
+		return NULL;
 	}
 	/* O_WRONLY not supported by db(3) but traditional ndbm allowed it. */
 	if ((flags & O_ACCMODE) == O_WRONLY) {
@@ -80,7 +80,7 @@ _dbm_open(const char *file, const char *suff, int flags, mode_t mode)
 	info.cachesize = 0;
 	info.hash = NULL;
 	info.lorder = 0;
-	return ((DBM *)__hash_open(path, flags, mode, &info, 0));
+	return (DBM *)__hash_open(path, flags, mode, &info, 0);
 }
 
 /*
@@ -91,8 +91,7 @@ _dbm_open(const char *file, const char *suff, int flags, mode_t mode)
 DBM *
 dbm_open(const char *file, int flags, mode_t mode)
 {
-
-	return(_dbm_open(file, DBM_SUFFIX, flags, mode));
+	return _dbm_open(file, DBM_SUFFIX, flags, mode);
 }
 
 /*
@@ -103,7 +102,6 @@ DEF_WEAK(dbm_close);
 void
 dbm_close(DBM *db)
 {
-
 	(void)(db->close)(db);
 }
 
@@ -129,7 +127,7 @@ dbm_fetch(DBM *db, datum key)
 	}
 	retdata.dptr = dbtretdata.data;
 	retdata.dsize = dbtretdata.size;
-	return (retdata);
+	return retdata;
 }
 
 /*
@@ -150,7 +148,7 @@ dbm_firstkey(DBM *db)
 		dbtretkey.data = NULL;
 	retkey.dptr = dbtretkey.data;
 	retkey.dsize = dbtretkey.size;
-	return (retkey);
+	return retkey;
 }
 
 /*
@@ -171,7 +169,7 @@ dbm_nextkey(DBM *db)
 		dbtretkey.data = NULL;
 	retkey.dptr = dbtretkey.data;
 	retkey.dsize = dbtretkey.size;
-	return (retkey);
+	return retkey;
 }
 
 /*
@@ -190,9 +188,9 @@ dbm_delete(DBM *db, datum key)
 	dbtkey.size = key.dsize;
 	status = (db->del)(db, &dbtkey, 0);
 	if (status)
-		return (-1);
+		return -1;
 	else
-		return (0);
+		return 0;
 }
 
 /*
@@ -211,8 +209,8 @@ dbm_store(DBM *db, datum key, datum data, int flags)
 	dbtkey.size = key.dsize;
 	dbtdata.data = data.dptr;
 	dbtdata.size = data.dsize;
-	return ((db->put)(db, &dbtkey, &dbtdata,
-	    (flags == DBM_INSERT) ? R_NOOVERWRITE : 0));
+	return (db->put)(db, &dbtkey, &dbtdata,
+	    (flags == DBM_INSERT) ? R_NOOVERWRITE : 0);
 }
 
 int
@@ -221,7 +219,7 @@ dbm_error(DBM *db)
 	HTAB *hp;
 
 	hp = (HTAB *)db->internal;
-	return (hp->err);
+	return hp->err;
 }
 
 int
@@ -231,14 +229,14 @@ dbm_clearerr(DBM *db)
 
 	hp = (HTAB *)db->internal;
 	hp->err = 0;
-	return (0);
+	return 0;
 }
 
 int
 dbm_dirfno(DBM *db)
 {
 
-	return(((HTAB *)db->internal)->fp);
+	return ((HTAB *)db->internal)->fp;
 }
 
 DEF_WEAK(dbm_rdonly);
@@ -248,5 +246,5 @@ dbm_rdonly(DBM *dbp)
 	HTAB *hashp = (HTAB *)dbp->internal;
 
 	/* Could use DBM_RDONLY instead if we wanted... */
-	return ((hashp->flags & O_ACCMODE) == O_RDONLY);
+	return (hashp->flags & O_ACCMODE) == O_RDONLY;
 }

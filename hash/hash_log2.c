@@ -44,5 +44,5 @@ __log2(uint32_t num)
 
 	limit = 1;
 	for (i = 0; limit < num; limit = limit << 1, i++);
-	return (i);
+	return i;
 }

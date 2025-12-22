@@ -309,7 +309,7 @@ __bt_open(const char *fname, int flags, int mode, const BTREEINFO *openinfo,
 	if (dflags & DB_TXN)
 		F_SET(t, B_DB_TXN);
 
-	return (dbp);
+	return dbp;
 
 einval:	errno = EINVAL;
 	goto err;
@@ -325,7 +325,7 @@ err:	saved_errno = errno;
 		free(t);
 	}
 	errno = saved_errno;
-	return (NULL);
+	return NULL;
 }
 
 /*
@@ -351,21 +351,21 @@ nroot(BTREE *t)
 			errno = EINVAL;
 		} else {
 			mpool_put(t->bt_mp, root, 0);
-			return (RET_SUCCESS);
+			return RET_SUCCESS;
 		}
 	}
 	if (errno != EINVAL)		/* It's OK to not exist. */
-		return (RET_ERROR);
+		return RET_ERROR;
 	errno = 0;
 
 	if ((meta = mpool_new(t->bt_mp, &npg, MPOOL_PAGE_NEXT)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	if ((root = mpool_new(t->bt_mp, &npg, MPOOL_PAGE_NEXT)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	if (npg != P_ROOT)
-		return (RET_ERROR);
+		return RET_ERROR;
 	root->pgno = npg;
 	root->prevpg = root->nextpg = P_INVALID;
 	root->lower = BTDATAOFF;
@@ -374,7 +374,7 @@ nroot(BTREE *t)
 	memset(meta, 0, t->bt_psize);
 	mpool_put(t->bt_mp, meta, MPOOL_DIRTY);
 	mpool_put(t->bt_mp, root, MPOOL_DIRTY);
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 static int
@@ -391,7 +391,7 @@ tmp(void)
 	    sizeof(path), "%s/bt.XXXXXX", envtmp ? envtmp : "/tmp");
 	if (len < 0 || len >= sizeof(path)) {
 		errno = ENAMETOOLONG;
-		return(-1);
+		return -1;
 	}
 
 	(void)sigfillset(&set);
@@ -399,7 +399,7 @@ tmp(void)
 	if ((fd = mkostemp(path, O_CLOEXEC)) != -1)
 		(void)unlink(path);
 	(void)sigprocmask(SIG_SETMASK, &oset, NULL);
-	return(fd);
+	return fd;
 }
 
 static int
@@ -412,11 +412,11 @@ byteorder(void)
 	p = (unsigned char *)&x;
 	switch (*p) {
 	case 1:
-		return (BIG_ENDIAN);
+		return BIG_ENDIAN;
 	case 4:
-		return (LITTLE_ENDIAN);
+		return LITTLE_ENDIAN;
 	default:
-		return (0);
+		return 0;
 	}
 }
 
@@ -436,7 +436,7 @@ __bt_fd(const DB *dbp)
 	/* In-memory database can't have a file descriptor. */
 	if (F_ISSET(t, B_INMEM)) {
 		errno = ENOENT;
-		return (-1);
+		return -1;
 	}
-	return (t->bt_fd);
+	return t->bt_fd;
 }

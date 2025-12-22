@@ -80,31 +80,31 @@ __rec_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 	case R_PREV:
 		if (F_ISSET(&t->bt_cursor, CURS_INIT)) {
 			if ((nrec = t->bt_cursor.rcursor - 1) == 0)
-				return (RET_SPECIAL);
+				return RET_SPECIAL;
 			break;
 		}
 		/* FALLTHROUGH */
 	case R_LAST:
 		if (!F_ISSET(t, R_EOF | R_INMEM) &&
 		    t->bt_irec(t, MAX_REC_NUMBER) == RET_ERROR)
-			return (RET_ERROR);
+			return RET_ERROR;
 		nrec = t->bt_nrecs;
 		break;
 	default:
 einval:		errno = EINVAL;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
-	
+
 	if (t->bt_nrecs == 0 || nrec > t->bt_nrecs) {
 		if (!F_ISSET(t, R_EOF | R_INMEM) &&
 		    (status = t->bt_irec(t, nrec)) != RET_SUCCESS)
-			return (status);
+			return status;
 		if (t->bt_nrecs == 0 || nrec > t->bt_nrecs)
-			return (RET_SPECIAL);
+			return RET_SPECIAL;
 	}
 
 	if ((e = __rec_search(t, nrec - 1, SEARCH)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	F_SET(&t->bt_cursor, CURS_INIT);
 	t->bt_cursor.rcursor = nrec;
@@ -114,5 +114,5 @@ einval:		errno = EINVAL;
 		mpool_put(t->bt_mp, e->page, 0);
 	else
 		t->bt_pinned = e->page;
-	return (status);
+	return status;
 }

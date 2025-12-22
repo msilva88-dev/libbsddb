@@ -128,7 +128,7 @@ __get_buf(HTAB *hashp, uint32_t addr,
 		bp = newbuf(hashp, addr, prev_bp);
 		if (!bp ||
 		    __get_page(hashp, bp->page, addr, !prev_bp, is_disk, 0))
-			return (NULL);
+			return NULL;
 		if (!prev_bp)
 			segp[segment_ndx] =
 			    (BUFHEAD *)((ptrdiff_t)bp | is_disk_mask);
@@ -136,7 +136,7 @@ __get_buf(HTAB *hashp, uint32_t addr,
 		BUF_REMOVE(bp);
 		MRU_INSERT(bp);
 	}
-	return (bp);
+	return bp;
 }
 
 /*
@@ -184,11 +184,11 @@ newbuf(HTAB *hashp, uint32_t addr, BUFHEAD *prev_bp)
 	if (hashp->nbufs || (bp->flags & BUF_PIN) || bp == hashp->cpage) {
 		/* Allocate a new one */
 		if ((bp = (BUFHEAD *)malloc(sizeof(BUFHEAD))) == NULL)
-			return (NULL);
+			return NULL;
 		memset(bp, 0xff, sizeof(BUFHEAD));
 		if ((bp->page = (char *)malloc(hashp->BSIZE)) == NULL) {
 			free(bp);
-			return (NULL);
+			return NULL;
 		}
 		memset(bp->page, 0xff, hashp->BSIZE);
 		if (hashp->nbufs)
@@ -210,7 +210,7 @@ newbuf(HTAB *hashp, uint32_t addr, BUFHEAD *prev_bp)
 				oaddr = shortp[shortp[0] - 1];
 			if ((bp->flags & BUF_MOD) && __put_page(hashp, bp->page,
 			    bp->addr, (int)IS_BUCKET(bp->flags), 0))
-				return (NULL);
+				return NULL;
 			/*
 			 * Update the pointer to this page (i.e. invalidate it).
 			 *
@@ -254,7 +254,7 @@ newbuf(HTAB *hashp, uint32_t addr, BUFHEAD *prev_bp)
 					oaddr = shortp[shortp[0] - 1];
 				if ((xbp->flags & BUF_MOD) && __put_page(hashp,
 				    xbp->page, xbp->addr, 0, 0))
-					return (NULL);
+					return NULL;
 				xbp->addr = 0;
 				xbp->flags = 0;
 				BUF_REMOVE(xbp);
@@ -285,7 +285,7 @@ newbuf(HTAB *hashp, uint32_t addr, BUFHEAD *prev_bp)
 	} else
 		bp->flags = BUF_BUCKET;
 	MRU_INSERT(bp);
-	return (bp);
+	return bp;
 }
 
 void
@@ -318,14 +318,14 @@ __buf_free(HTAB *hashp, int do_free, int to_disk)
 
 	/* Need to make sure that buffer manager has been initialized */
 	if (!LRU)
-		return (0);
+		return 0;
 	for (bp = LRU; bp != &hashp->bufhead;) {
 		/* Check that the buffer is valid */
 		if (bp->addr || IS_BUCKET(bp->flags)) {
 			if (to_disk && (bp->flags & BUF_MOD) &&
 			    __put_page(hashp, bp->page,
 			    bp->addr, IS_BUCKET(bp->flags), 0))
-				return (-1);
+				return -1;
 		}
 		/* Check if we are freeing stuff */
 		if (do_free) {
@@ -339,7 +339,7 @@ __buf_free(HTAB *hashp, int do_free, int to_disk)
 		} else
 			bp = bp->prev;
 	}
-	return (0);
+	return 0;
 }
 
 void

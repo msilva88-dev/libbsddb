@@ -58,7 +58,7 @@ __bt_free(BTREE *t, PAGE *h)
 	F_SET(t, B_METADIRTY);
 
 	/* Make sure the page gets written back. */
-	return (mpool_put(t->bt_mp, h, MPOOL_DIRTY));
+	return mpool_put(t->bt_mp, h, MPOOL_DIRTY);
 }
 
 /*
@@ -82,7 +82,7 @@ __bt_new(BTREE *t, pgno_t *npg)
 		*npg = t->bt_free;
 		t->bt_free = h->nextpg;
 		F_SET(t, B_METADIRTY);
-		return (h);
+		return h;
 	}
-	return (mpool_new(t->bt_mp, npg, MPOOL_PAGE_NEXT));
+	return mpool_new(t->bt_mp, npg, MPOOL_PAGE_NEXT);
 }

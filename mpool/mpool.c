@@ -64,15 +64,15 @@ mpool_open(void *key, int fd, pgno_t pagesize, pgno_t maxcache)
 	 * We don't currently handle pipes, although we should.
 	 */
 	if (fstat(fd, &sb))
-		return (NULL);
+		return NULL;
 	if (!S_ISREG(sb.st_mode)) {
 		errno = ESPIPE;
-		return (NULL);
+		return NULL;
 	}
 
 	/* Allocate and initialize the MPOOL cookie. */
 	if ((mp = (MPOOL *)calloc(1, sizeof(MPOOL))) == NULL)
-		return (NULL);
+		return NULL;
 	TAILQ_INIT(&mp->lqh);
 	for (entry = 0; entry < HASHSIZE; ++entry)
 		TAILQ_INIT(&mp->hqh[entry]);
@@ -80,7 +80,7 @@ mpool_open(void *key, int fd, pgno_t pagesize, pgno_t maxcache)
 	mp->npages = sb.st_size / pagesize;
 	mp->pagesize = pagesize;
 	mp->fd = fd;
-	return (mp);
+	return mp;
 }
 
 /*
@@ -119,7 +119,7 @@ mpool_new(MPOOL *mp, pgno_t *pgnoaddr, unsigned int flags)
 	 * and return.
 	 */
 	if ((bp = mpool_bkt(mp)) == NULL)
-		return (NULL);
+		return NULL;
 	if (flags == MPOOL_PAGE_REQUEST) {
 		mp->npages++;
 		bp->pgno = *pgnoaddr;
@@ -131,7 +131,7 @@ mpool_new(MPOOL *mp, pgno_t *pgnoaddr, unsigned int flags)
 	head = &mp->hqh[HASHKEY(bp->pgno)];
 	TAILQ_INSERT_HEAD(head, bp, hq);
 	TAILQ_INSERT_TAIL(&mp->lqh, bp, q);
-	return (bp->page);
+	return bp->page;
 }
 
 int
@@ -157,9 +157,9 @@ mpool_delete(MPOOL *mp, void *page)
 
 	free(bp);
 	mp->curcache--;
-	return (RET_SUCCESS);
-}	
-	
+	return RET_SUCCESS;
+}
+
 /*
  * mpool_get
  *	Get a page.
@@ -198,12 +198,12 @@ mpool_get(MPOOL *mp, pgno_t pgno,
 
 		/* Return a pinned page. */
 		bp->flags |= MPOOL_PINNED;
-		return (bp->page);
+		return bp->page;
 	}
 
 	/* Get a page from the cache. */
 	if ((bp = mpool_bkt(mp)) == NULL)
-		return (NULL);
+		return NULL;
 
 	/* Read in the contents. */
 	off = mp->pagesize * pgno;
@@ -213,7 +213,7 @@ mpool_get(MPOOL *mp, pgno_t pgno,
 			/* errno is set for us by pread(). */
 			free(bp);
 			mp->curcache--;
-			return (NULL);
+			return NULL;
 		case 0:
 			/*
 			 * A zero-length read means you need to create a
@@ -226,7 +226,7 @@ mpool_get(MPOOL *mp, pgno_t pgno,
 			free(bp);
 			mp->curcache--;
 			errno = EINVAL;
-			return (NULL);
+			return NULL;
 		}
 	}
 #ifdef STATISTICS
@@ -251,7 +251,7 @@ mpool_get(MPOOL *mp, pgno_t pgno,
 	if (mp->pgin != NULL)
 		(mp->pgin)(mp->pgcookie, bp->pgno, bp->page);
 
-	return (bp->page);
+	return bp->page;
 }
 
 /*
@@ -277,7 +277,7 @@ mpool_put(MPOOL *mp, void *page, unsigned int flags)
 	bp->flags &= ~MPOOL_PINNED;
 	if (flags & MPOOL_DIRTY)
 		bp->flags |= flags & MPOOL_DIRTY;
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -297,7 +297,7 @@ mpool_close(MPOOL *mp)
 
 	/* Free the MPOOL cookie. */
 	free(mp);
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -313,10 +313,10 @@ mpool_sync(MPOOL *mp)
 	TAILQ_FOREACH(bp, &mp->lqh, q)
 		if (bp->flags & MPOOL_DIRTY &&
 		    mpool_write(mp, bp) == RET_ERROR)
-			return (RET_ERROR);
+			return RET_ERROR;
 
 	/* Sync the file descriptor. */
-	return (fsync(mp->fd) ? RET_ERROR : RET_SUCCESS);
+	return fsync(mp->fd) ? RET_ERROR : RET_SUCCESS;
 }
 
 /*
@@ -344,7 +344,7 @@ mpool_bkt(MPOOL *mp)
 			/* Flush if dirty. */
 			if (bp->flags & MPOOL_DIRTY &&
 			    mpool_write(mp, bp) == RET_ERROR)
-				return (NULL);
+				return NULL;
 #ifdef STATISTICS
 			++mp->pageflush;
 #endif
@@ -360,11 +360,11 @@ mpool_bkt(MPOOL *mp)
 			}
 #endif
 			bp->flags = 0;
-			return (bp);
+			return bp;
 		}
 
 new:	if ((bp = (BKT *)malloc(sizeof(BKT) + mp->pagesize)) == NULL)
-		return (NULL);
+		return NULL;
 #ifdef STATISTICS
 	++mp->pagealloc;
 #endif
@@ -372,7 +372,7 @@ new:	if ((bp = (BKT *)malloc(sizeof(BKT) + mp->pagesize)) == NULL)
 	bp->page = (char *)bp + sizeof(BKT);
 	bp->flags = 0;
 	++mp->curcache;
-	return (bp);
+	return bp;
 }
 
 /*
@@ -394,7 +394,7 @@ mpool_write(MPOOL *mp, BKT *bp)
 
 	off = mp->pagesize * bp->pgno;
 	if (pwrite(mp->fd, bp->page, mp->pagesize, off) != mp->pagesize)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	/*
 	 * Re-run through the input filter since this page may soon be
@@ -406,7 +406,7 @@ mpool_write(MPOOL *mp, BKT *bp)
 		(mp->pgin)(mp->pgcookie, bp->pgno, bp->page);
 
 	bp->flags &= ~MPOOL_DIRTY;
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -426,12 +426,12 @@ mpool_look(MPOOL *mp, pgno_t pgno)
 #ifdef STATISTICS
 			++mp->cachehit;
 #endif
-			return (bp);
+			return bp;
 		}
 #ifdef STATISTICS
 	++mp->cachemiss;
 #endif
-	return (NULL);
+	return NULL;
 }
 
 #ifdef STATISTICS

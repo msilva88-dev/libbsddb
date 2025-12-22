@@ -75,5 +75,5 @@ __default_hash(const void *key, size_t len)
 		}
 
 	}
-	return (h);
+	return h;
 }

@@ -124,7 +124,7 @@ __delpair(HTAB *hashp, BUFHEAD *bufp, int ndx)
 	n = bp[0];
 
 	if (bp[ndx + 1] < REAL_KEY)
-		return (__big_delete(hashp, bufp));
+		return __big_delete(hashp, bufp);
 	if (ndx != 1)
 		newoff = bp[ndx - 1];
 	else
@@ -164,7 +164,7 @@ __delpair(HTAB *hashp, BUFHEAD *bufp, int ndx)
 	hashp->NKEYS--;
 
 	bufp->flags |= BUF_MOD;
-	return (0);
+	return 0;
 }
 /*
  * Returns:
@@ -186,10 +186,10 @@ __split_page(HTAB *hashp, uint32_t obucket, uint32_t nbucket)
 	off = (uint16_t)hashp->BSIZE;
 	old_bufp = __get_buf(hashp, obucket, NULL, 0);
 	if (old_bufp == NULL)
-		return (-1);
+		return -1;
 	new_bufp = __get_buf(hashp, nbucket, NULL, 0);
 	if (new_bufp == NULL)
-		return (-1);
+		return -1;
 
 	old_bufp->flags |= (BUF_MOD | BUF_PIN);
 	new_bufp->flags |= (BUF_MOD | BUF_PIN);
@@ -205,8 +205,7 @@ __split_page(HTAB *hashp, uint32_t obucket, uint32_t nbucket)
 			    (int)copyto, (int)moved);
 			old_bufp->flags &= ~BUF_PIN;
 			new_bufp->flags &= ~BUF_PIN;
-			return (retval);
-
+			return retval;
 		}
 		key.data = (unsigned char *)op + ino[n];
 		key.size = off - ino[n];
@@ -247,7 +246,7 @@ __split_page(HTAB *hashp, uint32_t obucket, uint32_t nbucket)
 	/* unpin both pages */
 	old_bufp->flags &= ~BUF_PIN;
 	new_bufp->flags &= ~BUF_PIN;
-	return (0);
+	return 0;
 }
 
 /*
@@ -296,18 +295,18 @@ ugly_split(HTAB *hashp,
 		if (ino[2] < REAL_KEY && ino[2] != OVFLPAGE) {
 			if (__big_split(hashp, old_bufp,
 			    new_bufp, bufp, bufp->addr, obucket, &ret))
-				return (-1);
+				return -1;
 			old_bufp = ret.oldp;
 			if (!old_bufp)
-				return (-1);
+				return -1;
 			op = (uint16_t *)old_bufp->page;
 			new_bufp = ret.newp;
 			if (!new_bufp)
-				return (-1);
+				return -1;
 			np = (uint16_t *)new_bufp->page;
 			bufp = ret.nextp;
 			if (!bufp)
-				return (0);
+				return 0;
 			cino = (char *)bufp->page;
 			ino = (uint16_t *)cino;
 			last_bfp = ret.nextp;
@@ -324,7 +323,7 @@ ugly_split(HTAB *hashp,
 
 			bufp = __get_buf(hashp, ov_addr, bufp, 0);
 			if (!bufp)
-				return (-1);
+				return -1;
 
 			ino = (uint16_t *)bufp->page;
 			n = 1;
@@ -353,7 +352,7 @@ ugly_split(HTAB *hashp,
 					old_bufp =
 					    __add_ovflpage(hashp, old_bufp);
 					if (!old_bufp)
-						return (-1);
+						return -1;
 					op = (uint16_t *)old_bufp->page;
 					putpair((char *)op, &key, &val);
 				}
@@ -366,7 +365,7 @@ ugly_split(HTAB *hashp,
 					new_bufp =
 					    __add_ovflpage(hashp, new_bufp);
 					if (!new_bufp)
-						return (-1);
+						return -1;
 					np = (uint16_t *)new_bufp->page;
 					putpair((char *)np, &key, &val);
 				}
@@ -376,7 +375,7 @@ ugly_split(HTAB *hashp,
 	}
 	if (last_bfp)
 		__free_ovflpage(hashp, last_bfp);
-	return (0);
+	return 0;
 }
 
 /*
@@ -403,7 +402,7 @@ __addel(HTAB *hashp, BUFHEAD *bufp, const DBT *key, const DBT *val)
 		else if (bp[2] < REAL_KEY && bp[bp[0]] != OVFLPAGE) {
 			bufp = __get_buf(hashp, bp[bp[0] - 1], bufp, 0);
 			if (!bufp)
-				return (-1);
+				return -1;
 			bp = (uint16_t *)bufp->page;
 		} else if (bp[bp[0]] != OVFLPAGE) {
 			/* Short key/data pairs, no more pages */
@@ -417,7 +416,7 @@ __addel(HTAB *hashp, BUFHEAD *bufp, const DBT *key, const DBT *val)
 			} else {
 				bufp = __get_buf(hashp, bp[bp[0] - 1], bufp, 0);
 				if (!bufp)
-					return (-1);
+					return -1;
 				bp = (uint16_t *)bufp->page;
 			}
 		}
@@ -428,14 +427,14 @@ __addel(HTAB *hashp, BUFHEAD *bufp, const DBT *key, const DBT *val)
 		do_expand = 1;
 		bufp = __add_ovflpage(hashp, bufp);
 		if (!bufp)
-			return (-1);
+			return -1;
 		sop = (uint16_t *)bufp->page;
 
 		if (PAIRFITS(sop, key, val))
 			putpair((char *)sop, key, val);
 		else
 			if (__big_insert(hashp, bufp, key, val))
-				return (-1);
+				return -1;
 	}
 stats:
 	bufp->flags |= BUF_MOD;
@@ -446,8 +445,8 @@ stats:
 	hashp->NKEYS++;
 	if (do_expand ||
 	    (hashp->NKEYS / (hashp->MAX_BUCKET + 1) > hashp->FFACTOR))
-		return (__expand_table(hashp));
-	return (0);
+		return __expand_table(hashp);
+	return 0;
 }
 
 /*
@@ -478,7 +477,7 @@ __add_ovflpage(HTAB *hashp, BUFHEAD *bufp)
 	tmp2 = bufp->ovfl ? bufp->ovfl->addr : 0;
 #endif
 	if (!ovfl_num || !(bufp->ovfl = __get_buf(hashp, ovfl_num, bufp, 1)))
-		return (NULL);
+		return NULL;
 	bufp->ovfl->flags |= BUF_MOD;
 #ifdef DEBUG1
 	(void)fprintf(stderr, "ADDOVFLPAGE: %d->ovfl was %d is now %d\n",
@@ -498,7 +497,7 @@ __add_ovflpage(HTAB *hashp, BUFHEAD *bufp)
 #ifdef HASH_STATISTICS
 	hash_overflows++;
 #endif
-	return (bufp->ovfl);
+	return bufp->ovfl;
 }
 
 /*
@@ -518,21 +517,21 @@ __get_page(HTAB *hashp, char *p, uint32_t bucket, int is_bucket, int is_disk,
 
 	if ((fd == -1) || !is_disk) {
 		PAGE_INIT(p);
-		return (0);
+		return 0;
 	}
 	if (is_bucket)
 		page = BUCKET_TO_PAGE(bucket);
 	else
 		page = OADDR_TO_PAGE(bucket);
 	if ((rsize = pread(fd, p, size, (off_t)page << hashp->BSHIFT)) == -1)
-		return (-1);
+		return -1;
 	bp = (uint16_t *)p;
 	if (!rsize)
 		bp[0] = 0;	/* We hit the EOF, so initialize a new page */
 	else
 		if (rsize != size) {
 			errno = EFTYPE;
-			return (-1);
+			return -1;
 		}
 	if (!is_bitmap && !bp[0]) {
 		PAGE_INIT(p);
@@ -551,7 +550,7 @@ __get_page(HTAB *hashp, char *p, uint32_t bucket, int is_bucket, int is_disk,
 					M_16_SWAP(bp[i]);
 			}
 		}
-	return (0);
+	return 0;
 }
 
 /*
@@ -568,7 +567,7 @@ __put_page(HTAB *hashp, char *p, uint32_t bucket, int is_bucket, int is_bitmap)
 
 	size = hashp->BSIZE;
 	if ((hashp->fp == -1) && open_temp(hashp))
-		return (-1);
+		return -1;
 	fd = hashp->fp;
 
 	if (hashp->LORDER != BYTE_ORDER) {
@@ -590,12 +589,12 @@ __put_page(HTAB *hashp, char *p, uint32_t bucket, int is_bucket, int is_bitmap)
 		page = OADDR_TO_PAGE(bucket);
 	if ((wsize = pwrite(fd, p, size, (off_t)page << hashp->BSHIFT)) == -1)
 		/* Errno is set */
-		return (-1);
+		return -1;
 	if (wsize != size) {
 		errno = EFTYPE;
-		return (-1);
+		return -1;
 	}
-	return (0);
+	return 0;
 }
 
 #define BYTE_MASK	((1 << INT_BYTE_SHIFT) -1)
@@ -610,7 +609,7 @@ __ibitmap(HTAB *hashp, int pnum, int nbits, int ndx)
 	int clearbytes, clearints;
 
 	if ((ip = (uint32_t *)malloc(hashp->BSIZE)) == NULL)
-		return (1);
+		return 1;
 	hashp->nmaps++;
 	clearints = ((nbits - 1) >> INT_BYTE_SHIFT) + 1;
 	clearbytes = clearints << INT_TO_BYTE;
@@ -621,7 +620,7 @@ __ibitmap(HTAB *hashp, int pnum, int nbits, int ndx)
 	SETBIT(ip, 0);
 	hashp->BITMAPS[ndx] = (uint16_t)pnum;
 	hashp->mapp[ndx] = ip;
-	return (0);
+	return 0;
 }
 
 static uint32_t
@@ -632,10 +631,10 @@ first_free(uint32_t map)
 	mask = 0x1;
 	for (i = 0; i < BITS_PER_MAP; i++) {
 		if (!(mask & map))
-			return (i);
+			return i;
 		mask = mask << 1;
 	}
-	return (i);
+	return i;
 }
 
 static uint16_t
@@ -659,7 +658,7 @@ overflow_page(HTAB *hashp)
 	for ( i = first_page; i <= free_page; i++ ) {
 		if (!(freep = (uint32_t *)hashp->mapp[i]) &&
 		    !(freep = fetch_bitmap(hashp, i)))
-			return (0);
+			return 0;
 		if (i == free_page)
 			in_use_bits = free_bit;
 		else
@@ -690,7 +689,7 @@ overflow_page(HTAB *hashp)
 		if (++splitnum >= NCACHED) {
 			(void)write(STDERR_FILENO, OVMSG, sizeof(OVMSG) - 1);
 			errno = EFBIG;
-			return (0);
+			return 0;
 		}
 		hashp->OVFL_POINT = splitnum;
 		hashp->SPARES[splitnum] = hashp->SPARES[splitnum-1];
@@ -704,7 +703,7 @@ overflow_page(HTAB *hashp)
 		if (free_page >= NCACHED) {
 			(void)write(STDERR_FILENO, OVMSG, sizeof(OVMSG) - 1);
 			errno = EFBIG;
-			return (0);
+			return 0;
 		}
 		/*
 		 * This is tricky.  The 1 indicates that you want the new page
@@ -719,7 +718,7 @@ overflow_page(HTAB *hashp)
 		 */
 		if (__ibitmap(hashp,
 		    (int)OADDR_OF(splitnum, offset), 1, free_page))
-			return (0);
+			return 0;
 		hashp->SPARES[splitnum]++;
 #ifdef DEBUG2
 		free_bit = 2;
@@ -730,7 +729,7 @@ overflow_page(HTAB *hashp)
 				(void)write(STDERR_FILENO, OVMSG,
 				    sizeof(OVMSG) - 1);
 				errno = EFBIG;
-				return (0);
+				return 0;
 			}
 			hashp->OVFL_POINT = splitnum;
 			hashp->SPARES[splitnum] = hashp->SPARES[splitnum-1];
@@ -752,7 +751,7 @@ overflow_page(HTAB *hashp)
 	(void)fprintf(stderr, "OVERFLOW_PAGE: ADDR: %d BIT: %d PAGE %d\n",
 	    addr, free_bit, free_page);
 #endif
-	return (addr);
+	return addr;
 
 found:
 	bit = bit + first_free(freep[j]);
@@ -776,7 +775,7 @@ found:
 	if (offset >= SPLITMASK) {
 		(void)write(STDERR_FILENO, OVMSG, sizeof(OVMSG) - 1);
 		errno = EFBIG;
-		return (0);	/* Out of overflow pages */
+		return 0;	/* Out of overflow pages */
 	}
 	addr = OADDR_OF(i, offset);
 #ifdef DEBUG2
@@ -785,7 +784,7 @@ found:
 #endif
 
 	/* Allocate and return the overflow page */
-	return (addr);
+	return addr;
 }
 
 /*
@@ -849,7 +848,7 @@ open_temp(HTAB *hashp)
 	    sizeof(path), "%s/_hash.XXXXXX", envtmp ? envtmp : "/tmp");
 	if (len < 0 || len >= sizeof(path)) {
 		errno = ENAMETOOLONG;
-		return (-1);
+		return -1;
 	}
 
 	/* Block signals; make sure file goes away at process exit. */
@@ -859,7 +858,7 @@ open_temp(HTAB *hashp)
 		(void)unlink(path);
 	}
 	(void)sigprocmask(SIG_SETMASK, &oset, (sigset_t *)NULL);
-	return (hashp->fp != -1 ? 0 : -1);
+	return (hashp->fp != -1) ? 0 : -1;
 }
 
 /*
@@ -895,15 +894,15 @@ static uint32_t *
 fetch_bitmap(HTAB *hashp, int ndx)
 {
 	if (ndx >= hashp->nmaps)
-		return (NULL);
+		return NULL;
 	if ((hashp->mapp[ndx] = (uint32_t *)malloc(hashp->BSIZE)) == NULL)
-		return (NULL);
+		return NULL;
 	if (__get_page(hashp,
 	    (char *)hashp->mapp[ndx], hashp->BITMAPS[ndx], 0, 1, 1)) {
 		free(hashp->mapp[ndx]);
-		return (NULL);
+		return NULL;
 	}
-	return (hashp->mapp[ndx]);
+	return hashp->mapp[ndx];
 }
 
 #ifdef DEBUG4

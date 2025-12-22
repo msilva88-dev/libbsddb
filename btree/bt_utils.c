@@ -76,13 +76,13 @@ __bt_ret(BTREE *t, EPG *e, DBT *key, DBT *rkey, DBT *data, DBT *rdata, int copy)
 	if (bl->flags & P_BIGKEY) {
 		if (__ovfl_get(t, bl->bytes,
 		    &key->size, &rkey->data, &rkey->size))
-			return (RET_ERROR);
+			return RET_ERROR;
 		key->data = rkey->data;
 	} else if (copy || F_ISSET(t, B_DB_LOCK)) {
 		if (bl->ksize > rkey->size) {
 			p = realloc(rkey->data, bl->ksize);
 			if (p == NULL)
-				return (RET_ERROR);
+				return RET_ERROR;
 			rkey->data = p;
 			rkey->size = bl->ksize;
 		}
@@ -96,19 +96,19 @@ __bt_ret(BTREE *t, EPG *e, DBT *key, DBT *rkey, DBT *data, DBT *rdata, int copy)
 
 dataonly:
 	if (data == NULL)
-		return (RET_SUCCESS);
+		return RET_SUCCESS;
 
 	if (bl->flags & P_BIGDATA) {
 		if (__ovfl_get(t, bl->bytes + bl->ksize,
 		    &data->size, &rdata->data, &rdata->size))
-			return (RET_ERROR);
+			return RET_ERROR;
 		data->data = rdata->data;
 	} else if (copy || F_ISSET(t, B_DB_LOCK)) {
 		/* Use +1 in case the first record retrieved is 0 length. */
 		if (bl->dsize + 1 > rdata->size) {
 			p = realloc(rdata->data, bl->dsize + 1);
 			if (p == NULL)
-				return (RET_ERROR);
+				return RET_ERROR;
 			rdata->data = p;
 			rdata->size = bl->dsize + 1;
 		}
@@ -120,7 +120,7 @@ dataonly:
 		data->data = bl->bytes + bl->ksize;
 	}
 
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -154,7 +154,7 @@ __bt_cmp(BTREE *t, const DBT *k1, EPG *e)
 	 */
 	h = e->page;
 	if (e->index == 0 && h->prevpg == P_INVALID && !(h->flags & P_BLEAF))
-		return (1);
+		return 1;
 
 	bigkey = NULL;
 	if (h->flags & P_BLEAF) {
@@ -178,10 +178,10 @@ __bt_cmp(BTREE *t, const DBT *k1, EPG *e)
 	if (bigkey) {
 		if (__ovfl_get(t, bigkey,
 		    &k2.size, &t->bt_rdata.data, &t->bt_rdata.size))
-			return (RET_ERROR);
+			return RET_ERROR;
 		k2.data = t->bt_rdata.data;
 	}
-	return ((*t->bt_cmp)(k1, &k2));
+	return (*t->bt_cmp)(k1, &k2);
 }
 
 /*
@@ -211,8 +211,8 @@ __bt_defcmp(const DBT *a, const DBT *b)
 	len = MINIMUM(a->size, b->size);
 	for (p1 = a->data, p2 = b->data; len--; ++p1, ++p2)
 		if (*p1 != *p2)
-			return ((int)*p1 - (int)*p2);
-	return ((int)a->size - (int)b->size);
+			return (int)*p1 - (int)*p2;
+	return (int)a->size - (int)b->size;
 }
 
 /*
@@ -235,8 +235,8 @@ __bt_defpfx(const DBT *a, const DBT *b)
 	len = MINIMUM(a->size, b->size);
 	for (p1 = a->data, p2 = b->data; len--; ++p1, ++p2, ++cnt)
 		if (*p1 != *p2)
-			return (cnt);
+			return cnt;
 
 	/* a->size must be <= b->size, or they wouldn't be in this order. */
-	return (a->size < b->size ? a->size + 1 : a->size);
+	return (a->size < b->size) ? a->size + 1 : a->size;
 }

@@ -68,7 +68,7 @@ __rec_get(const DB *dbp, const DBT *key, DBT *data, unsigned int flags)
 	/* Get currently doesn't take any flags, and keys of 0 are illegal. */
 	if (flags || (nrec = *(recno_t *)key->data) == 0) {
 		errno = EINVAL;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
 
 	/*
@@ -77,21 +77,21 @@ __rec_get(const DB *dbp, const DBT *key, DBT *data, unsigned int flags)
 	 */
 	if (nrec > t->bt_nrecs) {
 		if (F_ISSET(t, R_EOF | R_INMEM))
-			return (RET_SPECIAL);
+			return RET_SPECIAL;
 		if ((status = t->bt_irec(t, nrec)) != RET_SUCCESS)
-			return (status);
+			return status;
 	}
 
 	--nrec;
 	if ((e = __rec_search(t, nrec, SEARCH)) == NULL)
-		return (RET_ERROR);
+		return RET_ERROR;
 
 	status = __rec_ret(t, e, 0, NULL, data);
 	if (F_ISSET(t, B_DB_LOCK))
 		mpool_put(t->bt_mp, e->page, 0);
 	else
 		t->bt_pinned = e->page;
-	return (status);
+	return status;
 }
 
 /*
@@ -117,7 +117,7 @@ __rec_fpipe(BTREE *t, recno_t top)
 	if (t->bt_rdata.size < t->bt_reclen) {
 		tp = realloc(t->bt_rdata.data, t->bt_reclen);
 		if (tp == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 		t->bt_rdata.data = tp;
 		t->bt_rdata.size = t->bt_reclen;
 	}
@@ -134,7 +134,7 @@ __rec_fpipe(BTREE *t, recno_t top)
 					memset(p, t->bt_bval, len);
 				if (__rec_iput(t,
 				    nrec, &data, 0) != RET_SUCCESS)
-					return (RET_ERROR);
+					return RET_ERROR;
 				++nrec;
 				break;
 			}
@@ -143,9 +143,9 @@ __rec_fpipe(BTREE *t, recno_t top)
 	}
 	if (nrec < top) {
 		F_SET(t, R_EOF);
-		return (RET_SPECIAL);
+		return RET_SPECIAL;
 	}
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -181,7 +181,7 @@ __rec_vpipe(BTREE *t, recno_t top)
 					break;
 				if (__rec_iput(t, nrec, &data, 0)
 				    != RET_SUCCESS)
-					return (RET_ERROR);
+					return RET_ERROR;
 				break;
 			}
 			if (sz == 0) {
@@ -189,7 +189,7 @@ __rec_vpipe(BTREE *t, recno_t top)
 				t->bt_rdata.size += (sz = 256);
 				tp = realloc(t->bt_rdata.data, t->bt_rdata.size);
 				if (tp == NULL)
-					return (RET_ERROR);
+					return RET_ERROR;
 				t->bt_rdata.data = tp;
 				p = (unsigned char *)t->bt_rdata.data + len;
 			}
@@ -199,9 +199,9 @@ __rec_vpipe(BTREE *t, recno_t top)
 	}
 	if (nrec < top) {
 		F_SET(t, R_EOF);
-		return (RET_SPECIAL);
+		return RET_SPECIAL;
 	}
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -226,7 +226,7 @@ __rec_fmap(BTREE *t, recno_t top)
 	if (t->bt_rdata.size < t->bt_reclen) {
 		tp = realloc(t->bt_rdata.data, t->bt_reclen);
 		if (tp == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 		t->bt_rdata.data = tp;
 		t->bt_rdata.size = t->bt_reclen;
 	}
@@ -238,7 +238,7 @@ __rec_fmap(BTREE *t, recno_t top)
 	for (nrec = t->bt_nrecs; nrec < top; ++nrec) {
 		if (sp >= ep) {
 			F_SET(t, R_EOF);
-			return (RET_SPECIAL);
+			return RET_SPECIAL;
 		}
 		len = t->bt_reclen;
 		for (p = t->bt_rdata.data;
@@ -246,10 +246,10 @@ __rec_fmap(BTREE *t, recno_t top)
 		if (len != 0)
 			memset(p, t->bt_bval, len);
 		if (__rec_iput(t, nrec, &data, 0) != RET_SUCCESS)
-			return (RET_ERROR);
+			return RET_ERROR;
 	}
 	t->bt_cmap = (caddr_t)sp;
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 /*
@@ -277,14 +277,14 @@ __rec_vmap(BTREE *t, recno_t top)
 	for (nrec = t->bt_nrecs; nrec < top; ++nrec) {
 		if (sp >= ep) {
 			F_SET(t, R_EOF);
-			return (RET_SPECIAL);
+			return RET_SPECIAL;
 		}
 		for (data.data = sp; sp < ep && *sp != bval; ++sp);
 		data.size = sp - (unsigned char *)data.data;
 		if (__rec_iput(t, nrec, &data, 0) != RET_SUCCESS)
-			return (RET_ERROR);
+			return RET_ERROR;
 		++sp;
 	}
 	t->bt_cmap = (caddr_t)sp;
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }

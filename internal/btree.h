@@ -321,8 +321,8 @@ typedef struct _btree {
 	t->bt_sp->index = i; 						\
 	++t->bt_sp;							\
 }
-#define	BT_POP(t)	(t->bt_sp == t->bt_stack ? NULL : --t->bt_sp)
-#define	BT_CLR(t)	(t->bt_sp = t->bt_stack)
+#define	BT_POP(t) ((t->bt_sp == t->bt_stack) ? NULL : --t->bt_sp)
+#define	BT_CLR(t) (t->bt_sp = t->bt_stack)
 	EPGNO	  bt_stack[50];		/* stack of parent pages */
 	EPGNO	 *bt_sp;		/* current stack pointer */
 

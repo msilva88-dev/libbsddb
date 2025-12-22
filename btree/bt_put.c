@@ -78,7 +78,7 @@ __bt_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 	/* Check for change to a read-only tree. */
 	if (F_ISSET(t, B_RDONLY)) {
 		errno = EPERM;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
 
 	switch (flags) {
@@ -97,7 +97,7 @@ __bt_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 		/* FALLTHROUGH */
 	default:
 		errno = EINVAL;
-		return (RET_ERROR);
+		return RET_ERROR;
 	}
 
 	/*
@@ -112,7 +112,7 @@ __bt_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 	if (key->size + data->size > t->bt_ovflsize) {
 		if (key->size > t->bt_ovflsize) {
 storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
-				return (RET_ERROR);
+				return RET_ERROR;
 			tkey.data = kb;
 			tkey.size = NOVFLSIZE;
 			memmove(kb, &pg, sizeof(pgno_t));
@@ -124,7 +124,7 @@ storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
 		}
 		if (key->size + data->size > t->bt_ovflsize) {
 			if (__ovfl_put(t, data, &pg) == RET_ERROR)
-				return (RET_ERROR);
+				return RET_ERROR;
 			tdata.data = db;
 			tdata.size = NOVFLSIZE;
 			memmove(db, &pg, sizeof(pgno_t));
@@ -141,7 +141,7 @@ storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
 	/* Replace the cursor. */
 	if (flags == R_CURSOR) {
 		if ((h = mpool_get(t->bt_mp, t->bt_cursor.pg.pgno, 0)) == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 		idx = t->bt_cursor.pg.index;
 		goto delete;
 	}
@@ -152,7 +152,7 @@ storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
 	 */
 	if (t->bt_order == NOT || (e = bt_fast(t, key, data, &exact)) == NULL)
 		if ((e = __bt_search(t, key, &exact)) == NULL)
-			return (RET_ERROR);
+			return RET_ERROR;
 	h = e->page;
 	idx = e->index;
 
@@ -167,7 +167,7 @@ storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
 		if (!exact)
 			break;
 		mpool_put(t->bt_mp, h, 0);
-		return (RET_SPECIAL);
+		return RET_SPECIAL;
 	default:
 		if (!exact || !F_ISSET(t, B_NODUPS))
 			break;
@@ -178,7 +178,7 @@ storekey:		if (__ovfl_put(t, key, &pg) == RET_ERROR)
 		 */
 delete:		if (__bt_dleaf(t, key, h, idx) == RET_ERROR) {
 			mpool_put(t->bt_mp, h, 0);
-			return (RET_ERROR);
+			return RET_ERROR;
 		}
 		break;
 	}
@@ -193,7 +193,7 @@ delete:		if (__bt_dleaf(t, key, h, idx) == RET_ERROR) {
 	if (h->upper - h->lower < nbytes + sizeof(indx_t)) {
 		if ((status = __bt_split(t, h, key,
 		    data, dflags, nbytes, idx)) != RET_SUCCESS)
-			return (status);
+			return status;
 		goto success;
 	}
 
@@ -235,7 +235,7 @@ success:
 		__bt_setcur(t, e->page->pgno, e->index);
 
 	F_SET(t, B_MODIFIED);
-	return (RET_SUCCESS);
+	return RET_SUCCESS;
 }
 
 #ifdef STATISTICS
@@ -261,7 +261,7 @@ bt_fast(BTREE *t, const DBT *key, const DBT *data, int *exactp)
 
 	if ((h = mpool_get(t->bt_mp, t->bt_last.pgno, 0)) == NULL) {
 		t->bt_order = NOT;
-		return (NULL);
+		return NULL;
 	}
 	t->bt_cur.page = h;
 	t->bt_cur.index = t->bt_last.index;
@@ -295,7 +295,7 @@ bt_fast(BTREE *t, const DBT *key, const DBT *data, int *exactp)
 #ifdef STATISTICS
 	++bt_cache_hit;
 #endif
-	return (&t->bt_cur);
+	return &t->bt_cur;
 
 miss:
 #ifdef STATISTICS
@@ -303,5 +303,5 @@ miss:
 #endif
 	t->bt_order = NOT;
 	mpool_put(t->bt_mp, h, 0);
-	return (NULL);
+	return NULL;
 }
