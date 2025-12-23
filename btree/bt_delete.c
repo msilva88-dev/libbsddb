@@ -107,7 +107,7 @@ __bt_delete(const DB *dbp, const DBT *key, unsigned int flags)
 				    h, (status == RET_SUCCESS) ? MPOOL_DIRTY : 0);
 			break;
 		}
-		/* FALLTHROUGH */
+		FALLTHROUGH_A;
 	default:
 		errno = EINVAL;
 		return RET_ERROR;
@@ -136,7 +136,7 @@ __bt_stkacq(BTREE *t, PAGE **hp, CURSOR *c)
 	EPG *e;
 	EPGNO *parent;
 	PAGE *h;
-	indx_t idx;
+	indx_t idx = 0;
 	pgno_t pgno;
 	recno_t nextpg, prevpg;
 	int exact, level;

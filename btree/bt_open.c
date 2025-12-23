@@ -390,8 +390,8 @@ tmp(void)
 	if (issetugid() == 0)
 		envtmp = getenv("TMPDIR");
 	len = snprintf(path,
-	    sizeof(path), "%s/bt.XXXXXX", envtmp ? envtmp : "/tmp");
-	if (len < 0 || len >= sizeof(path)) {
+	    sizeof path, "%s/bt.XXXXXX", envtmp ? envtmp : "/tmp");
+	if (len < 0 || len >= (int)sizeof path) {
 		errno = ENAMETOOLONG;
 		return -1;
 	}

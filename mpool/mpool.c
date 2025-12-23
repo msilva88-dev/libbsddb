@@ -34,6 +34,7 @@
 
 #include <sys/stat.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,11 +52,12 @@ static int mpool_write(MPOOL *, BKT *);
  *	Initialize a memory pool.
  */
 MPOOL *
-mpool_open(void *key, int fd, pgno_t pagesize, pgno_t maxcache)
+mpool_open(void *key UNUSED_A, int fd, pgno_t pagesize, pgno_t maxcache)
 {
 	struct stat sb;
 	MPOOL *mp;
 	int entry;
+	(void)key;
 
 	/*
 	 * Get information about the file.
@@ -172,7 +174,7 @@ mpool_get(MPOOL *mp, pgno_t pgno,
 	struct _hqh *head;
 	BKT *bp;
 	off_t off;
-	int nr;
+	ssize_t nr;
 
 #ifdef STATISTICS
 	++mp->pageget;
@@ -208,7 +210,8 @@ mpool_get(MPOOL *mp, pgno_t pgno,
 
 	/* Read in the contents. */
 	off = mp->pagesize * pgno;
-	if ((nr = pread(mp->fd, bp->page, mp->pagesize, off)) != mp->pagesize) {
+	nr = pread(mp->fd, bp->page, mp->pagesize, off);
+	if (mp->pagesize > SSIZE_MAX || nr != (ssize_t)mp->pagesize) {
 		switch (nr) {
 		case -1:
 			/* errno is set for us by pread(). */
@@ -260,12 +263,18 @@ mpool_get(MPOOL *mp, pgno_t pgno,
  *	Return a page.
  */
 int
+#ifdef STATISTICS
 mpool_put(MPOOL *mp, void *page, unsigned int flags)
+#else
+mpool_put(MPOOL *mp UNUSED_A, void *page, unsigned int flags)
+#endif
 {
 	BKT *bp;
 
 #ifdef STATISTICS
 	++mp->pageput;
+#else
+	(void)mp;
 #endif
 	bp = (BKT *)((char *)page - sizeof(BKT));
 #ifdef DEBUG
@@ -396,7 +405,11 @@ mpool_write(MPOOL *mp, BKT *bp)
 		(mp->pgout)(mp->pgcookie, bp->pgno, bp->page);
 
 	off = mp->pagesize * bp->pgno;
-	if (pwrite(mp->fd, bp->page, mp->pagesize, off) != mp->pagesize)
+	/* pwrite is limited to ssize_t */
+	if (mp->pagesize > (unsigned long)SSIZE_MAX)
+		return RET_ERROR;
+	if (pwrite(mp->fd, bp->page, mp->pagesize, off)
+	    != (ssize_t)mp->pagesize)
 		return RET_ERROR;
 
 	/*

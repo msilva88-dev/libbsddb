@@ -28,14 +28,18 @@
          * No trailing ";" after this macro
          * to prevent Clang's [-Wextra-semi] warning.
          */
+#define FALLTHROUGH_A __attribute__((__fallthrough__))
 #define HIDDEN_A __attribute__((__visibility__("hidden")))
 #define PROTO_NORMAL(x) HIDDEN_A extern __typeof(x) x
+#define UNUSED_A __attribute__((__unused__))
 #else
 #define __BEGIN_HIDDEN_DECLS
 #define __END_HIDDEN_DECLS
 #define DEF_WEAK(x)
+#define FALLTHROUGH_A
 #define HIDDEN_A
 #define PROTO_NORMAL(x)
+#define UNUSED_A
 #endif
 
 #ifndef EFTYPE

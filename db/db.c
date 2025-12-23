@@ -37,8 +37,6 @@
 #include <stddef.h>
 #include "../internal/db.h"
 
-static int __dberr(void);
-
 DEF_WEAK(dbopen);
 DB *
 dbopen(const char *fname, int flags, int mode, DBTYPE type,
@@ -74,8 +72,71 @@ dbopen(const char *fname, int flags, int mode, DBTYPE type,
 }
 
 static int
-__dberr(void)
+__dberr_del(
+    const struct __db *pad0 UNUSED_A,
+    const DBT *pad1 UNUSED_A,
+    unsigned int pad2 UNUSED_A)
 {
+	(void)pad0;
+	(void)pad1;
+	(void)pad2;
+	return RET_ERROR;
+}
+
+static int
+__dberr_fd(const struct __db *pad0 UNUSED_A)
+{
+	(void)pad0;
+	return RET_ERROR;
+}
+
+static int
+__dberr_get(
+    const struct __db *pad0 UNUSED_A,
+    const DBT *pad1 UNUSED_A,
+    DBT *pad2 UNUSED_A,
+    unsigned int pad3 UNUSED_A)
+{
+	(void)pad0;
+	(void)pad1;
+	(void)pad2;
+	(void)pad3;
+	return RET_ERROR;
+}
+
+static int
+__dberr_put(
+    const struct __db *pad0 UNUSED_A,
+    DBT *pad1 UNUSED_A,
+    const DBT *pad2 UNUSED_A,
+    unsigned int pad3 UNUSED_A)
+{
+	(void)pad0;
+	(void)pad1;
+	(void)pad2;
+	(void)pad3;
+	return RET_ERROR;
+}
+
+static int
+__dberr_seq(
+    const struct __db *pad0 UNUSED_A,
+    DBT *pad1 UNUSED_A,
+    DBT *pad2 UNUSED_A,
+    unsigned int pad3 UNUSED_A)
+{
+	(void)pad0;
+	(void)pad1;
+	(void)pad2;
+	(void)pad3;
+	return RET_ERROR;
+}
+
+static int
+__dberr_sync(const struct __db *pad0 UNUSED_A, unsigned int pad1 UNUSED_A)
+{
+	(void)pad0;
+	(void)pad1;
 	return RET_ERROR;
 }
 
@@ -89,16 +150,10 @@ void
 __dbpanic(DB *dbp)
 {
 	/* The only thing that can succeed is a close. */
-	dbp->del =
-	    (int (*)(const struct __db *, const DBT*, unsigned int))__dberr;
-	dbp->fd = (int (*)(const struct __db *))__dberr;
-	dbp->get =
-	    (int (*)(const struct __db *, const DBT*, DBT *, unsigned int))
-	    __dberr;
-	dbp->put =
-	    (int (*)(const struct __db *, DBT *, const DBT *, unsigned int))
-	    __dberr;
-	dbp->seq = (int (*)(const struct __db *, DBT *, DBT *, unsigned int))
-	    __dberr;
-	dbp->sync = (int (*)(const struct __db *, unsigned int))__dberr;
+	dbp->del = __dberr_del;
+	dbp->fd = __dberr_fd;
+	dbp->get = __dberr_get;
+	dbp->put = __dberr_put;
+	dbp->seq = __dberr_seq;
+	dbp->sync = __dberr_sync;
 }

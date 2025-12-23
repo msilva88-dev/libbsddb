@@ -65,7 +65,7 @@ _dbm_open(const char *file, const char *suff, int flags, mode_t mode)
 	int len;
 
 	len = snprintf(path, sizeof path, "%s%s", file, suff);
-	if (len < 0 || len >= sizeof path) {
+	if (len < 0 || len >= (int)sizeof path) {
 		errno = ENAMETOOLONG;
 		return NULL;
 	}

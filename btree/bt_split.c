@@ -71,14 +71,14 @@ int
 __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
     size_t ilen, uint32_t argskip)
 {
-	BINTERNAL *bi;
-	BLEAF *bl, *tbl;
+	BINTERNAL *bi = NULL;
+	BLEAF *bl = NULL, *tbl;
 	DBT a, b;
 	EPGNO *parent;
 	PAGE *h, *l, *r, *lchild, *rchild;
 	indx_t nxtindex;
 	uint16_t skip;
-	uint32_t n, nbytes, nksize;
+	uint32_t n, nbytes, nksize = 0;
 	int parentsplit;
 	char *dest;
 
@@ -199,7 +199,8 @@ __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
 		}
 
 		/* Split the parent page if necessary or shift the indices. */
-		if (h->upper - h->lower < nbytes + sizeof(indx_t)) {
+		if ((size_t)(h->upper - h->lower) <
+		    (size_t)(nbytes + sizeof(indx_t))) {
 			sp = h;
 			h = (h->pgno == P_ROOT) ?
 			    bt_root(t, h, &l, &r, &skip, nbytes) :
@@ -224,6 +225,7 @@ __bt_split(BTREE *t, PAGE *sp, const DBT *key, const DBT *data, int flags,
 			((BINTERNAL *)dest)->pgno = rchild->pgno;
 			break;
 		case P_BLEAF:
+			if (!bl) goto err1;
 			h->linp[skip] = h->upper -= nbytes;
 			dest = (char *)h + h->linp[skip];
 			WR_BINTERNAL(dest, nksize ? nksize : bl->ksize,

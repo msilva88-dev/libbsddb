@@ -73,7 +73,7 @@ __rec_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 			nrec = t->bt_cursor.rcursor + 1;
 			break;
 		}
-		/* FALLTHROUGH */
+		FALLTHROUGH_A;
 	case R_FIRST:
 		nrec = 1;
 		break;
@@ -83,7 +83,7 @@ __rec_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 				return RET_SPECIAL;
 			break;
 		}
-		/* FALLTHROUGH */
+		FALLTHROUGH_A;
 	case R_LAST:
 		if (!F_ISSET(t, R_EOF | R_INMEM) &&
 		    t->bt_irec(t, MAX_REC_NUMBER) == RET_ERROR)

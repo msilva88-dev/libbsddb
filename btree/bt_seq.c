@@ -91,7 +91,7 @@ __bt_seq(const DB *dbp, DBT *key, DBT *data, unsigned int flags)
 			status = __bt_seqadv(t, &e, flags);
 			break;
 		}
-		/* FALLTHROUGH */
+		FALLTHROUGH_A;
 	case R_FIRST:
 	case R_LAST:
 	case R_CURSOR:
@@ -225,7 +225,7 @@ __bt_seqadv(BTREE *t, EPG *ep, int flags)
 {
 	CURSOR *c;
 	PAGE *h;
-	indx_t idx;
+	indx_t idx = 0;
 	pgno_t pg;
 	int exact;
 

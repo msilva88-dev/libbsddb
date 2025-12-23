@@ -87,12 +87,13 @@ int hash_accesses, hash_collisions, hash_expansions, hash_overflows;
 DB *
 __hash_open(const char *file, int flags, int mode,
     const HASHINFO *info, /* Special directives for create */
-    int dflags)
+    int dflags UNUSED_A)
 {
 	HTAB *hashp;
 	struct stat statbuf;
 	DB *dbp;
 	int bpages, hdrsize, new_table, nsegs, save_errno;
+	(void)dflags;
 
 	if ((flags & O_ACCMODE) == O_WRONLY) {
 		errno = EINVAL;
@@ -144,7 +145,9 @@ __hash_open(const char *file, int flags, int mode,
 		if (hashp->VERSION != HASHVERSION &&
 		    hashp->VERSION != OLDHASHVERSION)
 			RETURN_ERROR(EFTYPE, error1);
-		if (hashp->hash(CHARKEY, sizeof(CHARKEY)) != hashp->H_CHARKEY)
+		if (hashp->H_CHARKEY <= 0 ||
+		    hashp->hash(CHARKEY, sizeof(CHARKEY))
+		    != (uint32_t)hashp->H_CHARKEY)
 			RETURN_ERROR(EFTYPE, error1);
 		/*
 		 * Figure out how many segments we need.  Max_Bucket is the
@@ -703,7 +706,8 @@ hash_seq(const DB *dbp, DBT *key, DBT *data, uint32_t flag)
 	for (bp = NULL; !bp || !bp[0]; ) {
 		if (!(bufp = hashp->cpage)) {
 			for (bucket = hashp->cbucket;
-			    bucket <= hashp->MAX_BUCKET;
+			    bucket <= INT32_MAX &&
+			    (int32_t)bucket <= hashp->MAX_BUCKET;
 			    bucket++, hashp->cndx = 1) {
 				bufp = __get_buf(hashp, bucket, NULL, 0);
 				if (!bufp)
@@ -811,7 +815,8 @@ __expand_table(HTAB *hashp)
 		hashp->OVFL_POINT = spare_ndx;
 	}
 
-	if (new_bucket > hashp->HIGH_MASK) {
+	if (new_bucket > INT32_MAX ||
+	    (int32_t)new_bucket > hashp->HIGH_MASK) {
 		/* Starting a new doubling */
 		hashp->LOW_MASK = hashp->HIGH_MASK;
 		hashp->HIGH_MASK = new_bucket | hashp->LOW_MASK;

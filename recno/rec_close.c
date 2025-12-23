@@ -33,6 +33,7 @@
  */
 
 #include <sys/uio.h>
+#include <limits.h>
 #include <unistd.h>
 #include "recno.h"
 
@@ -136,7 +137,11 @@ __rec_sync(const DB *dbp, unsigned int flags)
 		 */
 		status = (dbp->seq)(dbp, &key, &data, R_FIRST);
 		while (status == RET_SUCCESS) {
-			if (write(t->bt_rfd, data.data, data.size) != data.size)
+			/* write is limited to ssize_t */
+			if (data.size > (size_t)SSIZE_MAX)
+				return RET_ERROR;
+			if (write(t->bt_rfd, data.data, data.size)
+			    != (ssize_t)data.size)
 				return RET_ERROR;
 			status = (dbp->seq)(dbp, &key, &data, R_NEXT);
 		}
@@ -148,7 +153,11 @@ __rec_sync(const DB *dbp, unsigned int flags)
 		while (status == RET_SUCCESS) {
 			iov[0].iov_base = data.data;
 			iov[0].iov_len = data.size;
-			if (writev(t->bt_rfd, iov, 2) != data.size + 1)
+			/* writev is limited to ssize_t */
+			if (data.size + 1 > (size_t)SSIZE_MAX)
+				return RET_ERROR;
+			if (writev(t->bt_rfd, iov, 2)
+			    != (ssize_t)(data.size + 1))
 				return RET_ERROR;
 			status = (dbp->seq)(dbp, &key, &data, R_NEXT);
 		}

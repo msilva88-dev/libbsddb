@@ -53,12 +53,13 @@
  *	collect_data
  */
 
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
 #ifdef DEBUG
 #include <assert.h>
 #endif
+#include <errno.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
 #include "extern.h"
 
 #define MINIMUM(a, b) (((a) < (b)) ? (a) : (b))
@@ -120,7 +121,9 @@ __big_insert(HTAB *hashp, BUFHEAD *bufp, const DBT *key, const DBT *val)
 				 * data must end on a page with FREESPACE
 				 * non-zero would fail.
 				 */
-				if (space == val_size && val_size == val->size)
+				if ((int)space == val_size &&
+				    val->size <= SSIZE_MAX &&
+				    (ssize_t)val_size == (ssize_t)val->size)
 					goto toolarge;
 				off = OFFSET(p) - move_bytes;
 				memmove(cp + off, val_data, move_bytes);
@@ -148,7 +151,8 @@ toolarge:
 		 * Here's the hack to make sure that if the data ends on the
 		 * same page as the key ends, FREESPACE is at least one.
 		 */
-		if (space == val_size && val_size == val->size)
+		if ((int)space == val_size && val->size <= SSIZE_MAX &&
+		    (ssize_t)val_size == (ssize_t)val->size)
 			move_bytes--;
 		off = OFFSET(p) - move_bytes;
 		memmove(cp + off, val_data, move_bytes);

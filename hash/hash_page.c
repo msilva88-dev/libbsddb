@@ -641,7 +641,7 @@ first_free(uint32_t map)
 static uint16_t
 overflow_page(HTAB *hashp)
 {
-	uint32_t *freep;
+	uint32_t *freep = NULL;
 	int max_free, offset, splitnum;
 	uint16_t addr;
 	int bit, first_page, free_bit, free_page, i, in_use_bits, j;
@@ -846,8 +846,8 @@ open_temp(HTAB *hashp)
 	if (issetugid() == 0)
 		envtmp = getenv("TMPDIR");
 	len = snprintf(path,
-	    sizeof(path), "%s/_hash.XXXXXX", envtmp ? envtmp : "/tmp");
-	if (len < 0 || len >= sizeof(path)) {
+	    sizeof path, "%s/_hash.XXXXXX", envtmp ? envtmp : "/tmp");
+	if (len < 0 || len >= (int)sizeof path) {
 		errno = ENAMETOOLONG;
 		return -1;
 	}

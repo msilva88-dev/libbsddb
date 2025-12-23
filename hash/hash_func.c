@@ -36,6 +36,7 @@
  */
 
 #include "../include/bsddb.h"
+#include "../internal/features.h"
 
 /* Chris Torek's hash function. */
 u_int32_t
@@ -55,20 +56,27 @@ __default_hash(const void *key, size_t len)
 
 		switch (len & (8 - 1)) {
 		case 0:
-			do { /* All fall throughs */
+			do {
 				HASH4;
+				FALLTHROUGH_A;
 		case 7:
 				HASH4;
+				FALLTHROUGH_A;
 		case 6:
 				HASH4;
+				FALLTHROUGH_A;
 		case 5:
 				HASH4;
+				FALLTHROUGH_A;
 		case 4:
 				HASH4;
+				FALLTHROUGH_A;
 		case 3:
 				HASH4;
+				FALLTHROUGH_A;
 		case 2:
 				HASH4;
+				FALLTHROUGH_A;
 		case 1:
 				HASH4;
 			} while (--loop);

@@ -59,7 +59,7 @@ __bt_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 {
 	BTREE *t;
 	DBT tkey, tdata;
-	EPG *e;
+	EPG *e = NULL;
 	PAGE *h;
 	indx_t idx, nxtindex;
 	pgno_t pg;
@@ -94,7 +94,7 @@ __bt_put(const DB *dbp, DBT *key, const DBT *data, unsigned int flags)
 		    !F_ISSET(&t->bt_cursor,
 			CURS_ACQUIRE | CURS_AFTER | CURS_BEFORE))
 			break;
-		/* FALLTHROUGH */
+		FALLTHROUGH_A;
 	default:
 		errno = EINVAL;
 		return RET_ERROR;
@@ -192,7 +192,8 @@ delete:
 	 * into the offset array, shift the pointers up.
 	 */
 	nbytes = NBLEAFDBT(key->size, data->size);
-	if (h->upper - h->lower < nbytes + sizeof(indx_t)) {
+	if ((size_t)(h->upper - h->lower) <
+	    (size_t)(nbytes + sizeof(indx_t))) {
 		if ((status = __bt_split(t, h, key,
 		    data, dflags, nbytes, idx)) != RET_SUCCESS)
 			return status;
@@ -233,8 +234,12 @@ delete:
 	mpool_put(t->bt_mp, h, MPOOL_DIRTY);
 
 success:
-	if (flags == R_SETCURSOR)
+	if (flags == R_SETCURSOR) {
+		/* this is implemented because of goto delete */
+		if (!e) return RET_ERROR;
+
 		__bt_setcur(t, e->page->pgno, e->index);
+	}
 
 	F_SET(t, B_MODIFIED);
 	return RET_SUCCESS;
@@ -273,7 +278,7 @@ bt_fast(BTREE *t, const DBT *key, const DBT *data, int *exactp)
 	 * have to search to get split stack.
 	 */
 	nbytes = NBLEAFDBT(key->size, data->size);
-	if (h->upper - h->lower < nbytes + sizeof(indx_t))
+	if ((size_t)(h->upper - h->lower) < (size_t)(nbytes + sizeof(indx_t)))
 		goto miss;
 
 	if (t->bt_order == FORWARD) {
