@@ -36,13 +36,14 @@
  */
 
 #include <sys/stat.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
 #ifdef DEBUG
 #include <assert.h>
 #endif
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../internal/db.h"
 #include "extern.h"
 
@@ -377,13 +378,13 @@ hdestroy(HTAB *hashp)
 	save_errno = 0;
 
 #ifdef HASH_STATISTICS
-	(void)fprintf(stderr, "hdestroy: accesses %ld collisions %ld\n",
+	(void)fprintf(stderr, "hdestroy: accesses %d collisions %d\n",
 	    hash_accesses, hash_collisions);
-	(void)fprintf(stderr, "hdestroy: expansions %ld\n",
+	(void)fprintf(stderr, "hdestroy: expansions %d\n",
 	    hash_expansions);
-	(void)fprintf(stderr, "hdestroy: overflows %ld\n",
+	(void)fprintf(stderr, "hdestroy: overflows %d\n",
 	    hash_overflows);
-	(void)fprintf(stderr, "keys %ld maxp %d segmentcount %d\n",
+	(void)fprintf(stderr, "keys %d maxp %d segmentcount %d\n",
 	    hashp->NKEYS, hashp->MAX_BUCKET, hashp->nsegs);
 
 	for (i = 0; i < NCACHED; i++)
