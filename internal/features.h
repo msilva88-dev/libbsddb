@@ -23,7 +23,7 @@
 #define __END_HIDDEN_DECLS _Pragma("GCC visibility pop")
 #define DEF_WEAK(x) \
         extern __typeof(x) x __attribute__((__weak__)); \
-        extern __typeof(x) __bsd4_##x __attribute__((__alias__(#x)))
+        extern __typeof(x) __bsddb_##x __attribute__((__alias__(#x)))
         /*
          * No trailing ";" after this macro
          * to prevent Clang's [-Wextra-semi] warning.
