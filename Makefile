@@ -70,6 +70,10 @@ SHAREDIR ?= $(PREFIX)/share
 SHRDOWN ?= $(DIRGRP)
 SHRDGRP ?= $(DIROWN)
 SHRDPERM ?= $(DIRPERM)
+VER ?= $(VER_MAJOR).$(VER_MINOR).$(VER_REV)
+VER_MAJOR ?= 1
+VER_MINOR ?= 85
+VER_REV ?= 0
 
 # Number of CPU threads for parallel compilation
 CTHREADS_CMD != sh -c '\
@@ -90,8 +94,8 @@ case "$(COS_CMD)" in \
         printf "%s-pc-%s" "$(CARCH)" "hyperbolabsd" \
         ;; \
     *Linux|*) \
-        _G=$(ldd --version 2>&1 | head -n 1 | cut -d"(" -f2 | cut -d")" -f1) \
-        if [ "${_G}" = "GNU libc" ]; then \
+        _=$$(ldd --version 2>&1 | head -n 1 | cut -d"(" -f2 | cut -d")" -f1) \
+        if [ "$${_}" = "GNU libc" ]; then \
             printf "%s-pc-%s" "$(CARCH)" "linux-gnu"; \
         else \
             printf "%s-pc-%s" "$(CARCH)" "linux-musl"; \
@@ -168,12 +172,6 @@ command -v mold 2>/dev/null || command -v lld 2>/dev/null \
   || command -v ld 2>/dev/null  || printf "%s" "ld.bfd" \
 ' 2>/dev/null
 LD_CMD != printf "%s" "$(LD_PATH_CMD)" | sed "s|.*/||" 2>/dev/null
-
-# Default package configurator command flags
-PKG_CONFIG_PATH_CMD != sh -c '\
-command -v pkg-config 2>/dev/null || printf "%s" "pkg-config" \
-' 2>/dev/null
-PKG_CONFIG_CMD != printf "%s" "$(PKG_CONFIG_PATH_CMD)" | sed "s|.*/||" 2>/dev/null
 
 
 ## Compiler
@@ -485,84 +483,84 @@ $(BUILDDIR)/mpool:
 $(BUILDDIR)/recno:
 	mkdir -p "$(BUILDDIR)/recno"
 $(BUILDDIR)/btree/bt_close.o: btree/bt_close.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_conv.o: btree/bt_conv.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_debug.o: btree/bt_debug.c
-	$(CC) $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_STATS_CMD) \
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_STATS_CMD) \
 	  $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_delete.o: btree/bt_delete.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_get.o: btree/bt_get.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_open.o: btree/bt_open.c
-	$(CC) $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_overflow.o: btree/bt_overflow.c
-	$(CC) $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_page.o: btree/bt_page.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_put.o: btree/bt_put.c
-	$(CC) $(CFLAGS) $(OPTFLAG_STATS_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_STATS_CMD) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_search.o: btree/bt_search.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_seq.o: btree/bt_seq.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_split.o: btree/bt_split.c
-	$(CC) $(CFLAGS) $(OPTFLAG_STATS_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_STATS_CMD) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/btree/bt_utils.o: btree/bt_utils.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/db/db.o: db/db.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/hash/hash.o: hash/hash.c
-	$(CC) $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_HSTATS_CMD) \
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_HSTATS_CMD) \
 	  $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/hash/hash_bigkey.o: hash/hash_bigkey.c
-	$(CC) $(CFLAGS) $(OPTFLAG_DEBUG1_CMD) $(OPTFLAG_HSTATS_CMD) \
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG1_CMD) $(OPTFLAG_HSTATS_CMD) \
 	  $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/hash/hash_buf.o: hash/hash_buf.c
-	$(CC) $(CFLAGS) $(OPTFLAG_DEBUG1_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG1_CMD) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/hash/hash_func.o: hash/hash_func.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/hash/hash_log2.o: hash/hash_log2.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/hash/hash_page.o: hash/hash_page.c
-	$(CC) $(CFLAGS) $(OPTFLAG_DEBUG4_CMD) $(OPTFLAG_HSTATS_CMD) \
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG4_CMD) $(OPTFLAG_HSTATS_CMD) \
 	  $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/hash/ndbm.o: hash/ndbm.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/mpool/mpool.o: mpool/mpool.c
-	$(CC) $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_STATS_CMD) \
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_STATS_CMD) \
 	  $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_close.o: recno/rec_close.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_delete.o: recno/rec_delete.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_get.o: recno/rec_get.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_open.o: recno/rec_open.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_put.o: recno/rec_put.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_search.o: recno/rec_search.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_seq.o: recno/rec_seq.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_utils.o: recno/rec_utils.c
-	$(CC) $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
 	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
-	    $(CC) $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
+	    "$(CC)" $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
 	      -o "$(BUILDDIR)/libbsddb.so" $? $(LNK_LDFLAGS); \
 	else \
-	    $(CC) $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
+	    "$(CC)" $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
 	      -o "$(BUILDDIR)/libbsddb.so" \
               $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(LNK_LDFLAGS); \
 	fi
 $(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
 	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
-	    $(AR) $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
+	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
 	else \
-	    $(AR) $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" \
+	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" \
               $(LIBBSDDB_OBJS) $(COMMON_OBJS); \
 	fi
 
@@ -589,7 +587,7 @@ install-hdr: $(LIBBSDDB_HDRS)
 
 	if [ "$(DIRPGRP)" = "true" ]; then \
 	    LSPERMS="ls -ld \"$(DESTDIR)/$(PREFIX)\" 2>/dev/null"; \
-	    PERMS=$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(PREFIX)"; \
 	fi
 
@@ -603,12 +601,12 @@ install-hdr: $(LIBBSDDB_HDRS)
 
 	if [ "$(DIRPGRP)" = "true" ]; then \
 	    LSPERMS="ls -ld \"$(DESTDIR)/$(SHAREDIR)\" 2>/dev/null"; \
-	    PERMS=$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(SHAREDIR)"; \
 	fi
 
 	cp -p $(LIBBSDDB_HDRS) "$(DESTDIR)/$(INCLUDEDIR)"
-	for FILE in $(LIBBSDDB_HDRS); do \
+	for FILE in $$(ls $(LIBBSDDB_HDRS) | xargs -n1 basename); do \
 	    chmod "$(INCFPERM)" \
 	      "$(DESTDIR)/$(INCLUDEDIR)/$${FILE}"; \
 	    chown "$(INCFOWN):$(INCFGRP)" \
@@ -631,7 +629,7 @@ install-lib:
 
 	if [ "$(DIRPGRP)" = "true" ]; then \
 	    LSPERMS="ls -ld \"$(DESTDIR)/$(PREFIX)\" 2>/dev/null"; \
-	    PERMS=$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(PREFIX)"; \
 	fi
 
@@ -645,12 +643,17 @@ install-lib:
 
 	if [ "$(DIRPGRP)" = "true" ]; then \
 	    LSPERMS="ls -ld \"$(DESTDIR)/$(LIBDIR)\" 2>/dev/null"; \
-	    PERMS=$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(LIBDIR)"; \
 	fi
 
 	cp -p $(LIBS) "$(DESTDIR)/$(LIBDIR)"
-	for FILE in $(ls "$(BUILDDIR)/libbsddb."* | xargs -n1 basename); do \
+	if [ -f "$(DESTDIR)/$(LIBDIR)/libbsddb.so" ]; then \
+            ln -s libbsddb.so \
+	      "$(DESTDIR)/$(LIBDIR)/libbsddb.so.$(VER_MAJOR)"; \
+            ln -s libbsddb.so "$(DESTDIR)/$(LIBDIR)/libbsddb.so.$(VER)"; \
+	fi
+	for FILE in $$(ls "$(BUILDDIR)/libbsddb."* | xargs -n1 basename); do \
 	    chmod "$(LIBFPERM)" \
 	      "$(DESTDIR)/$(LIBDIR)/$${FILE}"; \
 	    chown "$(LIBFOWN):$(LIBFGRP)" \
@@ -682,7 +685,7 @@ install-man: $(LIBBSDDB_MANS)
 
 	if [ "$(DIRPGRP)" = "true" ]; then \
 	    LSPERMS="ls -ld \"$(DESTDIR)/$(PREFIX)\" 2>/dev/null"; \
-	    PERMS=$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(PREFIX)"; \
 	fi
 
@@ -696,7 +699,7 @@ install-man: $(LIBBSDDB_MANS)
 
 	if [ "$(DIRPGRP)" = "true" ]; then \
 	    LSPERMS="ls -ld \"$(DESTDIR)/$(SHAREDIR)\" 2>/dev/null"; \
-	    PERMS=$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(SHAREDIR)"; \
 	fi
 
@@ -710,7 +713,7 @@ install-man: $(LIBBSDDB_MANS)
 
 	if [ "$(DIRPGRP)" = "true" ]; then \
 	    LSPERMS="ls -ld \"$(DESTDIR)/$(MANDIR)\" 2>/dev/null"; \
-	    PERMS=$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(MANDIR)"; \
 	fi
 
@@ -724,12 +727,12 @@ install-man: $(LIBBSDDB_MANS)
 
 	if [ "$(DIRPGRP)" = "true" ]; then \
 	    LSPERMS="ls -ld \"$(DESTDIR)/$(MANDIR)/man3\" 2>/dev/null"; \
-	    PERMS=$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(MANDIR)/man3"; \
 	fi
 
 	cp -p $(LIBBSDDB_MANS) "$(DESTDIR)/$(MANDIR)/man3"
-	for FILE in $(LIBBSDDB_MANS); do \
+	for FILE in $$(ls $(LIBBSDDB_MANS) | xargs -n1 basename); do \
 	    chmod "$(MANFPERM)" \
 	      "$(DESTDIR)/$(MANDIR)/man3/$${FILE}"; \
 	    chown "$(MANFOWN):$(MANFGRP)" \
