@@ -1,0 +1,10 @@
+# libbsddb pkg-config source file
+
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+
+Name: libbsddb
+Description: Lightweight, fast embedded key/value database library
+Version: @VER@
+Libs: -L${libdir} -lbsddb
+Cflags: -I${includedir}

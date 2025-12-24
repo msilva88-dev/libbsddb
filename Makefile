@@ -62,6 +62,13 @@ MANFGRP ?= $(FILEGRP)
 MANFOWN ?= $(FILEOWN)
 MANFPERM ?= $(FILEPERM)
 MARCH ?= $(MARCH_CMD)
+PCDGRP ?= $(DIRGRP)
+PCDOWN ?= $(DIROWN)
+PCDPERM ?= $(DIRPERM)
+PCFGRP ?= $(FILEGRP)
+PCFOWN ?= $(FILEOWN)
+PCFPERM ?= $(FILEPERM)
+PKGCONFIGDIR ?= $(LIBDIR)/pkgconfig
 PREFIX ?= usr
 PFIXOWN ?= $(DIRGRP)
 PFIXGRP ?= $(DIROWN)
@@ -465,10 +472,12 @@ LIBBSDDB_HDRS := include/bsddb.h include/bsdndbm.h
 
 LIBBSDDB_MANS := man/btree.3 man/dbopen.3 man/hash.3 man/ndbm.3 man/recno.3
 
+LIBBSDDB_PCS := $(BUILDDIR)/libbsddb.pc
+
 ## build
 
 all: $(BUILDDIR) $(BUILDDIR)/btree $(BUILDDIR)/db $(BUILDDIR)/hash \
-  $(BUILDDIR)/mpool $(BUILDDIR)/recno $(LIBS)
+  $(BUILDDIR)/mpool $(BUILDDIR)/recno $(LIBS) $(BUILDDIR)/libbsddb.pc
 
 $(BUILDDIR):
 	mkdir -p "$(BUILDDIR)"
@@ -547,6 +556,13 @@ $(BUILDDIR)/recno/rec_seq.o: recno/rec_seq.c
 	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_utils.o: recno/rec_utils.c
 	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+$(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
+	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
+	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
+	else \
+	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" \
+              $(LIBBSDDB_OBJS) $(COMMON_OBJS); \
+	fi
 $(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
 	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
 	    "$(CC)" $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
@@ -556,17 +572,18 @@ $(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
 	      -o "$(BUILDDIR)/libbsddb.so" \
               $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(LNK_LDFLAGS); \
 	fi
-$(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
-	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
-	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
-	else \
-	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" \
-              $(LIBBSDDB_OBJS) $(COMMON_OBJS); \
-	fi
+$(BUILDDIR)/libbsddb.pc: libbsddb.pc.in
+	sed \
+	  -e 's|@LIBDIR@|/$(LIBDIR)|g' \
+	  -e 's|@INCLUDEDIR@|/$(INCLUDEDIR)|g' \
+	  -e 's|@VER@|$(VER)|g' \
+	  $? > $@
 
 ## Install
 
-install: install-hdr install-lib install-man
+install: install-hdr install-lib install-man install-pkgconfig
+
+## Install headers
 
 install-hdr: $(LIBBSDDB_HDRS)
 	([ -d "$(DESTDIR)/$(PREFIX)" ] || [ "$(DESTDIR)/$(PREFIX)" = "/" ]) \
@@ -613,7 +630,9 @@ install-hdr: $(LIBBSDDB_HDRS)
 	      "$(DESTDIR)/$(INCLUDEDIR)/$${FILE}"; \
 	done
 
-install-lib:
+## Install libraries
+
+install-lib: $(LIBS)
 	([ -d "$(DESTDIR)/$(PREFIX)" ] || [ "$(DESTDIR)/$(PREFIX)" = "/" ]) \
 	  || mkdir -pm "$(PFIXPERM)" "$(DESTDIR)/$(PREFIX)"
 	([ -d "$(DESTDIR)/$(LIBDIR)" ] || [ "$(DESTDIR)/$(LIBDIR)" = "/" ]) \
@@ -648,19 +667,24 @@ install-lib:
 	fi
 
 	cp -p $(LIBS) "$(DESTDIR)/$(LIBDIR)"
-	if [ -f "$(DESTDIR)/$(LIBDIR)/libbsddb.so" ]; then \
-            ln -s libbsddb.so \
-	      "$(DESTDIR)/$(LIBDIR)/libbsddb.so.$(VER_MAJOR)"; \
-            ln -s libbsddb.so "$(DESTDIR)/$(LIBDIR)/libbsddb.so.$(VER)"; \
-	fi
-	for FILE in $$(ls "$(BUILDDIR)/libbsddb."* | xargs -n1 basename); do \
+	for FILE in $$(ls $(LIBS) | xargs -n1 basename); do \
 	    chmod "$(LIBFPERM)" \
 	      "$(DESTDIR)/$(LIBDIR)/$${FILE}"; \
 	    chown "$(LIBFOWN):$(LIBFGRP)" \
 	      "$(DESTDIR)/$(LIBDIR)/$${FILE}"; \
 	done
+	if [ -f "$(DESTDIR)/$(LIBDIR)/libbsddb.so" ]; then \
+	    ln -s libbsddb.so \
+	      "$(DESTDIR)/$(LIBDIR)/libbsddb.so.$(VER_MAJOR)"; \
+	    ln -s libbsddb.so \
+	      "$(DESTDIR)/$(LIBDIR)/libbsddb.so.$(VER)"; \
+	    chown "$(LIBFOWN):$(LIBFGRP)" \
+	      "$(DESTDIR)/$(LIBDIR)/libbsddb.so.$(VER_MAJOR)"; \
+	    chown "$(LIBFOWN):$(LIBFGRP)" \
+	      "$(DESTDIR)/$(LIBDIR)/libbsddb.so.$(VER)"; \
+	fi
 
-## Install Manuals
+## Install manuals
 
 install-man: $(LIBBSDDB_MANS)
 	([ -d "$(DESTDIR)/$(PREFIX)" ] || [ "$(DESTDIR)/$(PREFIX)" = "/" ]) \
@@ -739,9 +763,56 @@ install-man: $(LIBBSDDB_MANS)
 	      "$(DESTDIR)/$(MANDIR)/man3/$${FILE}"; \
 	done
 
+# Install pkg-config files
+
+install-pkgconfig: $(LIBBSDDB_PCS)
+	([ -d "$(DESTDIR)/$(PREFIX)" ] || [ "$(DESTDIR)/$(PREFIX)" = "/" ]) \
+	  || mkdir -pm "$(PFIXPERM)" "$(DESTDIR)/$(PREFIX)"
+	([ -d "$(DESTDIR)/$(PKGCONFIGDIR)" ] \
+	  || [ "$(DESTDIR)/$(PKGCONFIGDIR)" = "/" ]) \
+	  || mkdir -pm "$(PCDPERM)" "$(DESTDIR)/$(PKGCONFIGDIR)"
+
+	OGDIR="$(DESTDIR)/$(PREFIX)"; \
+	OWNGRP=$$(ls -ld "$${OGDIR}" 2>/dev/null | awk '{print $$3, $$4}'); \
+	set -- "$${OWNGRP}"; \
+	[ "$$1" = "$(PFIXOWN)" ] \
+	  || chown "$(PFIXOWN)" "$(DESTDIR)/$(PREFIX)"; \
+	[ "$$2" = "$(PFIXGRP)" ] \
+	  || chgrp "$(PFIXGRP)" "$(DESTDIR)/$(PREFIX)"
+
+	if [ "$(DIRPGRP)" = "true" ]; then \
+	    LSPERMS="ls -ld \"$(DESTDIR)/$(PREFIX)\" 2>/dev/null"; \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(PREFIX)"; \
+	fi
+
+	OGDIR="$(DESTDIR)/$(PKGCONFIGDIR)"; \
+	OWNGRP=$$(ls -ld "$${OGDIR}" 2>/dev/null | awk '{print $$3, $$4}'); \
+	set -- "$${OWNGRP}"; \
+	[ "$$1" = "$(PCDOWN)" ] \
+	  || chown "$(PCDOWN)" "$(DESTDIR)/$(PKGCONFIGDIR)"; \
+	[ "$$2" = "$(PCDGRP)" ] \
+	  || chgrp "$(PCDGRP)" "$(DESTDIR)/$(PKGCONFIGDIR)"
+
+	if [ "$(DIRPGRP)" = "true" ]; then \
+	    LSPERMS="ls -ld \"$(DESTDIR)/$(PKGCONFIGDIR)\" 2>/dev/null"; \
+	    PERMS=$$("$${LSPERMS}" | awk '{print $1}' | cut -c6); \
+	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(PKGCONFIGDIR)"; \
+	fi
+
+	cp -p $(LIBBSDDB_PCS) "$(DESTDIR)/$(PKGCONFIGDIR)"
+	for FILE in $$(ls $(LIBBSDDB_PCS) | xargs -n1 basename); do \
+	    chmod "$(PCFPERM)" \
+	      "$(DESTDIR)/$(PKGCONFIGDIR)/$${FILE}"; \
+	    chown "$(PCFOWN):$(PCFGRP)" \
+	      "$(DESTDIR)/$(PKGCONFIGDIR)/$${FILE}"; \
+	done
+
 ## Clean
 
 clean:
 	rm -frv "$(BUILDDIR)"
 
-.PHONY: all clean install install-hdr install-lib install-man $(LIBS)
+.PHONY: all clean \
+  install install-hdr install-lib install-man install-pkgconfig \
+  $(LIBBSDDB_HDRS) $(LIBS) $(LIBBSDDB_MANS) $(LIBBSDDB_PCS)
