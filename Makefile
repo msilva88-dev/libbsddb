@@ -33,6 +33,7 @@ DIRPGRP ?= false
 ENABLE_DYNAMIC ?= false
 ENABLE_HASH_STATISTICS ?= false
 ENABLE_SHARED ?= true
+ENABLE_STATIC ?= false
 ENABLE_STATISTICS ?= false
 FILEGRP ?= root
 FILEOWN ?= root
@@ -573,10 +574,18 @@ $(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
               $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(LNK_LDFLAGS); \
 	fi
 $(BUILDDIR)/libbsddb.pc: libbsddb.pc.in
+	if [ "$(ENABLE_DYNAMIC)" = "true" ] \
+	  || [ "$(ENABLE_STATIC)" != "true" ]; \
+	then \
+	    _DYNAMIC=" -lbsddb"; \
+	else \
+	    _DYNAMIC=""; \
+	fi; \
 	sed \
-	  -e 's|@LIBDIR@|/$(LIBDIR)|g' \
-	  -e 's|@INCLUDEDIR@|/$(INCLUDEDIR)|g' \
-	  -e 's|@VER@|$(VER)|g' \
+	  -e "s|@DYNAMIC@|$${_DYNAMIC}|g" \
+	  -e "s|@LIBDIR@|/$(LIBDIR)|g" \
+	  -e "s|@INCLUDEDIR@|/$(INCLUDEDIR)|g" \
+	  -e "s|@VER@|$(VER)|g" \
 	  $? > $@
 
 ## Install
