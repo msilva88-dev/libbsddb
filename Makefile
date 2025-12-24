@@ -146,7 +146,7 @@ esac \
 ' 2>/dev/null
 
 # Target library flags
-BUILD_LIBRARY_CMD != sh -c '\
+BUILD_LIBBSDDB_CMD != sh -c '\
 _DYNAMIC=""; \
 _STATIC=""; \
 _SP=""; \
@@ -450,9 +450,12 @@ LDFLAGS := $(DFT_LDFLAGS_CMD)
 
 ## Make macros
 
-LIBS := $(BUILD_LIBRARY_CMD)
+LIBBSDDB_HDRS := include/bsddb.h include/bsdndbm.h
 
-COMMON_OBJS :=
+LIBBSDDB_LIBS := $(BUILD_LIBBSDDB_CMD)
+
+LIBBSDDB_MANS := man/btree.3 man/dbopen.3 man/hash.3 man/ndbm.3 man/recno.3
+
 LIBBSDDB_OBJS := $(BUILDDIR)/btree/bt_close.o $(BUILDDIR)/btree/bt_conv.o
 LIBBSDDB_OBJS += $(BUILDDIR)/btree/bt_debug.o $(BUILDDIR)/btree/bt_delete.o
 LIBBSDDB_OBJS += $(BUILDDIR)/btree/bt_get.o $(BUILDDIR)/btree/bt_open.o
@@ -469,16 +472,12 @@ LIBBSDDB_OBJS += $(BUILDDIR)/recno/rec_get.o $(BUILDDIR)/recno/rec_open.o
 LIBBSDDB_OBJS += $(BUILDDIR)/recno/rec_put.o $(BUILDDIR)/recno/rec_search.o
 LIBBSDDB_OBJS += $(BUILDDIR)/recno/rec_seq.o $(BUILDDIR)/recno/rec_utils.o
 
-LIBBSDDB_HDRS := include/bsddb.h include/bsdndbm.h
-
-LIBBSDDB_MANS := man/btree.3 man/dbopen.3 man/hash.3 man/ndbm.3 man/recno.3
-
 LIBBSDDB_PCS := $(BUILDDIR)/libbsddb.pc
 
 ## build
 
 all: $(BUILDDIR) $(BUILDDIR)/btree $(BUILDDIR)/db $(BUILDDIR)/hash \
-  $(BUILDDIR)/mpool $(BUILDDIR)/recno $(LIBS) $(BUILDDIR)/libbsddb.pc
+  $(BUILDDIR)/mpool $(BUILDDIR)/recno $(LIBBSDDB_LIBS) $(LIBBSDDB_PCS)
 
 $(BUILDDIR):
 	mkdir -p "$(BUILDDIR)"
@@ -557,21 +556,19 @@ $(BUILDDIR)/recno/rec_seq.o: recno/rec_seq.c
 	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
 $(BUILDDIR)/recno/rec_utils.o: recno/rec_utils.c
 	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
-$(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
+$(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS) $(PORTABLE_OBJS)
 	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
 	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
 	else \
-	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" \
-              $(LIBBSDDB_OBJS) $(COMMON_OBJS); \
+	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $(LIBBSDDB_OBJS); \
 	fi
-$(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(PORTABLE_OBJS)
+$(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS) $(PORTABLE_OBJS)
 	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
 	    "$(CC)" $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
 	      -o "$(BUILDDIR)/libbsddb.so" $? $(LNK_LDFLAGS); \
 	else \
 	    "$(CC)" $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
-	      -o "$(BUILDDIR)/libbsddb.so" \
-              $(LIBBSDDB_OBJS) $(COMMON_OBJS) $(LNK_LDFLAGS); \
+	      -o "$(BUILDDIR)/libbsddb.so" $(LIBBSDDB_OBJS) $(LNK_LDFLAGS); \
 	fi
 $(BUILDDIR)/libbsddb.pc: libbsddb.pc.in
 	if [ "$(ENABLE_DYNAMIC)" = "true" ] \
@@ -641,7 +638,7 @@ install-hdr: $(LIBBSDDB_HDRS)
 
 ## Install libraries
 
-install-lib: $(LIBS)
+install-lib: $(LIBBSDDB_LIBS)
 	([ -d "$(DESTDIR)/$(PREFIX)" ] || [ "$(DESTDIR)/$(PREFIX)" = "/" ]) \
 	  || mkdir -pm "$(PFIXPERM)" "$(DESTDIR)/$(PREFIX)"
 	([ -d "$(DESTDIR)/$(LIBDIR)" ] || [ "$(DESTDIR)/$(LIBDIR)" = "/" ]) \
@@ -675,8 +672,8 @@ install-lib: $(LIBS)
 	    [ "$(PERMS)" = "s" ] || chmod g+s "$(DESTDIR)/$(LIBDIR)"; \
 	fi
 
-	cp -p $(LIBS) "$(DESTDIR)/$(LIBDIR)"
-	for FILE in $$(ls $(LIBS) | xargs -n1 basename); do \
+	cp -p $(LIBBSDDB_LIBS) "$(DESTDIR)/$(LIBDIR)"
+	for FILE in $$(ls $(LIBBSDDB_LIBS) | xargs -n1 basename); do \
 	    chmod "$(LIBFPERM)" \
 	      "$(DESTDIR)/$(LIBDIR)/$${FILE}"; \
 	    chown "$(LIBFOWN):$(LIBFGRP)" \
@@ -824,4 +821,4 @@ clean:
 
 .PHONY: all clean \
   install install-hdr install-lib install-man install-pkgconfig \
-  $(LIBBSDDB_HDRS) $(LIBS) $(LIBBSDDB_MANS) $(LIBBSDDB_PCS)
+  $(LIBBSDDB_HDRS) $(LIBBSDDB_LIBS) $(LIBBSDDB_MANS) $(LIBBSDDB_PCS)
