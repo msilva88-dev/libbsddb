@@ -13,75 +13,74 @@
 ## Settings
 
 # Configurations
-AR ?= $(AR_CMD)
-ARFLAGS ?= rcs
-BUILDDIR ?= build
-CARCH ?= $(CARCH_CMD)
-CBUILD ?= $(CBUILD_CMD)
-CHOST ?= $(CBUILD)
-CTHREADS ?= $(CTHREADS_CMD)
-CPPFLAGS ?= $(CPPFLAGS_CMD)
-CC ?= $(CC_CMD)
-CFLAGS ?= $(CFLAGS_CMD)
-CVER ?= gnu17
-DEBUG ?= false
-DESTDIR ?=
-DIRGRP ?= root
-DIROWN ?= root
-DIRPERM ?= 0755
-DIRPGRP ?= false
-ENABLE_DYNAMIC ?= false
-ENABLE_HASH_STATISTICS ?= false
-ENABLE_SHARED ?= true
-ENABLE_STATIC ?= false
-ENABLE_STATISTICS ?= false
-FILEGRP ?= root
-FILEOWN ?= root
-FILEPERM ?= 0644
-INCLUDEDIR ?= $(PREFIX)/include
-INCDGRP ?= $(DIRGRP)
-INCDOWN ?= $(DIROWN)
-INCDPERM ?= $(DIRPERM)
-INCFGRP ?= $(FILEGRP)
-INCFOWN ?= $(FILEOWN)
-INCFPERM ?= $(FILEPERM)
-LD ?= $(LD_CMD)
-LDHSTYLE ?= both
-LDHSTYLE_LEG ?= gnu
-LIBDIR ?= lib
-LIBDGRP ?= $(DIRGRP)
-LIBDOWN ?= $(DIROWN)
-LIBDPERM ?= $(DIRPERM)
-LIBFGRP ?= $(FILEGRP)
-LIBFOWN ?= $(FILEOWN)
-LIBFPERM ?= $(FILEPERM)
-MANDIR ?= $(SHAREDIR)/man
-MANDGRP ?= $(DIRGRP)
-MANDOWN ?= $(DIROWN)
-MANDPERM ?= $(DIRPERM)
-MANFGRP ?= $(FILEGRP)
-MANFOWN ?= $(FILEOWN)
-MANFPERM ?= $(FILEPERM)
-MARCH ?= $(MARCH_CMD)
-PCDGRP ?= $(DIRGRP)
-PCDOWN ?= $(DIROWN)
-PCDPERM ?= $(DIRPERM)
-PCFGRP ?= $(FILEGRP)
-PCFOWN ?= $(FILEOWN)
-PCFPERM ?= $(FILEPERM)
-PKGCONFIGDIR ?= $(LIBDIR)/pkgconfig
-PREFIX ?= usr
-PFIXOWN ?= $(DIRGRP)
-PFIXGRP ?= $(DIROWN)
-PFIXPERM ?= $(DIRPERM)
-SHAREDIR ?= $(PREFIX)/share
-SHRDOWN ?= $(DIRGRP)
-SHRDGRP ?= $(DIROWN)
-SHRDPERM ?= $(DIRPERM)
-VER ?= $(VER_MAJOR).$(VER_MINOR).$(VER_REV)
-VER_MAJOR ?= 1
-VER_MINOR ?= 85
-VER_REV ?= 0
+AR = $(AR_CMD)
+ARFLAGS = rcs
+BUILDDIR = build
+CARCH = $(CARCH_CMD)
+CBUILD = $(CBUILD_CMD)
+CHOST = $(CBUILD)
+CTHREADS = $(CTHREADS_CMD)
+CPPFLAGS = $(CPPFLAGS_CMD)
+CC = $(CC_CMD)
+CFLAGS = $(CFLAGS_CMD)
+CVER = gnu17
+DEBUG = false
+DESTDIR =
+DIRGRP = root
+DIROWN = root
+DIRPERM = 0755
+DIRPGRP = false
+ENABLE_DYNAMIC = false
+ENABLE_HASH_STATISTICS = false
+ENABLE_STATIC = false
+ENABLE_STATISTICS = false
+FILEGRP = root
+FILEOWN = root
+FILEPERM = 0644
+INCLUDEDIR = $(PREFIX)/include
+INCDGRP = $(DIRGRP)
+INCDOWN = $(DIROWN)
+INCDPERM = $(DIRPERM)
+INCFGRP = $(FILEGRP)
+INCFOWN = $(FILEOWN)
+INCFPERM = $(FILEPERM)
+LD = $(LD_CMD)
+LDHSTYLE = both
+LDHSTYLE_LEG = gnu
+LIBDIR = lib
+LIBDGRP = $(DIRGRP)
+LIBDOWN = $(DIROWN)
+LIBDPERM = $(DIRPERM)
+LIBFGRP = $(FILEGRP)
+LIBFOWN = $(FILEOWN)
+LIBFPERM = $(FILEPERM)
+MANDIR = $(SHAREDIR)/man
+MANDGRP = $(DIRGRP)
+MANDOWN = $(DIROWN)
+MANDPERM = $(DIRPERM)
+MANFGRP = $(FILEGRP)
+MANFOWN = $(FILEOWN)
+MANFPERM = $(FILEPERM)
+MARCH = $(MARCH_CMD)
+PCDGRP = $(DIRGRP)
+PCDOWN = $(DIROWN)
+PCDPERM = $(DIRPERM)
+PCFGRP = $(FILEGRP)
+PCFOWN = $(FILEOWN)
+PCFPERM = $(FILEPERM)
+PKGCONFIGDIR = $(LIBDIR)/pkgconfig
+PREFIX = usr
+PFIXOWN = $(DIRGRP)
+PFIXGRP = $(DIROWN)
+PFIXPERM = $(DIRPERM)
+SHAREDIR = $(PREFIX)/share
+SHRDOWN = $(DIRGRP)
+SHRDGRP = $(DIROWN)
+SHRDPERM = $(DIRPERM)
+VER = $(VER_MAJOR).$(VER_MINOR).$(VER_REV)
+VER_MAJOR = 1
+VER_MINOR = 85
+VER_REV = 0
 
 # Number of CPU threads for parallel compilation
 CTHREADS_CMD != sh -c '\
@@ -322,12 +321,12 @@ esac \
 
 # Compiler Flags for shared library
 DFT_LIBFLAGS_CMD != sh -c '\
-if [ "$(ENABLE_DYNAMIC)" != "true" ] \
-  || [ "$(ENABLE_STATIC)" = "true" ]; \
+if [ "$(ENABLE_DYNAMIC)" = "true" ] \
+  || [ "$(ENABLE_STATIC)" != "true" ]; \
 then \
-    printf "%s" ""; \
-else \
     printf "%s%s" "-f" "PIC"; \
+else \
+    printf "%s" ""; \
 fi \
 ' 2>/dev/null
 
@@ -566,10 +565,10 @@ $(BUILDDIR)/recno/rec_seq.o: recno/rec_seq.c
 $(BUILDDIR)/recno/rec_utils.o: recno/rec_utils.c
 	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS)
-	"$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
+	"$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?
 $(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS)
 	"$(CC)" $(LDFLAGS) $(DFT_SHAREDLDFLAGS) \
-	  -o "$(BUILDDIR)/libbsddb.so" $? $(LNK_LDFLAGS); \
+	  -o "$(BUILDDIR)/libbsddb.so" $? $(LNK_LDFLAGS)
 $(BUILDDIR)/libbsddb.pc: libbsddb.pc.in
 	if [ "$(ENABLE_DYNAMIC)" = "true" ] \
 	  || [ "$(ENABLE_STATIC)" != "true" ]; \
