@@ -321,7 +321,15 @@ esac \
 ' 2>/dev/null
 
 # Compiler Flags for shared library
-DFT_LIBFLAGS := -fPIC
+DFT_LIBFLAGS_CMD != sh -c '\
+if [ "$(ENABLE_DYNAMIC)" != "true" ] \
+  || [ "$(ENABLE_STATIC)" = "true" ]; \
+then \
+    printf "%s" ""; \
+else \
+    printf "%s%s" "-f" "PIC"; \
+fi \
+' 2>/dev/null
 
 # Compiler Flags in clang v11 and GCC v8 (C family language)
 DFT_CFMLFLAGS_CMD != sh -c '\
@@ -492,70 +500,71 @@ $(BUILDDIR)/mpool:
 $(BUILDDIR)/recno:
 	mkdir -p "$(BUILDDIR)/recno"
 $(BUILDDIR)/btree/bt_close.o: btree/bt_close.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_conv.o: btree/bt_conv.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_debug.o: btree/bt_debug.c
 	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_STATS_CMD) \
-	  $(DFT_LIBFLAGS) -c $? -o $@
+	  $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_delete.o: btree/bt_delete.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_get.o: btree/bt_get.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_open.o: btree/bt_open.c
-	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_overflow.o: btree/bt_overflow.c
-	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_page.o: btree/bt_page.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_put.o: btree/bt_put.c
-	"$(CC)" $(CFLAGS) $(OPTFLAG_STATS_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_STATS_CMD) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_search.o: btree/bt_search.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_seq.o: btree/bt_seq.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_split.o: btree/bt_split.c
-	"$(CC)" $(CFLAGS) $(OPTFLAG_STATS_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_STATS_CMD) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/btree/bt_utils.o: btree/bt_utils.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/db/db.o: db/db.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/hash/hash.o: hash/hash.c
 	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_HSTATS_CMD) \
-	  $(DFT_LIBFLAGS) -c $? -o $@
+	  $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/hash/hash_bigkey.o: hash/hash_bigkey.c
 	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG1_CMD) $(OPTFLAG_HSTATS_CMD) \
-	  $(DFT_LIBFLAGS) -c $? -o $@
+	  $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/hash/hash_buf.o: hash/hash_buf.c
-	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG1_CMD) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG1_CMD) \
+	  $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/hash/hash_func.o: hash/hash_func.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/hash/hash_log2.o: hash/hash_log2.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/hash/hash_page.o: hash/hash_page.c
 	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG4_CMD) $(OPTFLAG_HSTATS_CMD) \
-	  $(DFT_LIBFLAGS) -c $? -o $@
+	  $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/hash/ndbm.o: hash/ndbm.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/mpool/mpool.o: mpool/mpool.c
 	"$(CC)" $(CFLAGS) $(OPTFLAG_DEBUG_CMD) $(OPTFLAG_STATS_CMD) \
-	  $(DFT_LIBFLAGS) -c $? -o $@
+	  $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_close.o: recno/rec_close.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_delete.o: recno/rec_delete.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_get.o: recno/rec_get.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_open.o: recno/rec_open.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_put.o: recno/rec_put.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_search.o: recno/rec_search.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_seq.o: recno/rec_seq.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_utils.o: recno/rec_utils.c
-	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS) -c $? -o $@
+	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS) $(PORTABLE_OBJS)
 	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
 	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
@@ -564,10 +573,10 @@ $(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS) $(PORTABLE_OBJS)
 	fi
 $(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS) $(PORTABLE_OBJS)
 	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
-	    "$(CC)" $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
+	    "$(CC)" $(LDFLAGS) $(DFT_SHAREDLDFLAGS) \
 	      -o "$(BUILDDIR)/libbsddb.so" $? $(LNK_LDFLAGS); \
 	else \
-	    "$(CC)" $(LDFLAGS) $(DFT_LIBFLAGS) $(DFT_SHAREDLDFLAGS) \
+	    "$(CC)" $(LDFLAGS) $(DFT_SHAREDLDFLAGS) \
 	      -o "$(BUILDDIR)/libbsddb.so" $(LIBBSDDB_OBJS) $(LNK_LDFLAGS); \
 	fi
 $(BUILDDIR)/libbsddb.pc: libbsddb.pc.in
