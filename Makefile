@@ -565,20 +565,11 @@ $(BUILDDIR)/recno/rec_seq.o: recno/rec_seq.c
 	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
 $(BUILDDIR)/recno/rec_utils.o: recno/rec_utils.c
 	"$(CC)" $(CFLAGS) $(DFT_LIBFLAGS_CMD) -c $? -o $@
-$(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS) $(PORTABLE_OBJS)
-	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
-	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
-	else \
-	    "$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $(LIBBSDDB_OBJS); \
-	fi
-$(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS) $(PORTABLE_OBJS)
-	if [ "$(BUILD_PORTABLE_CMD)" = "true" ]; then \
-	    "$(CC)" $(LDFLAGS) $(DFT_SHAREDLDFLAGS) \
-	      -o "$(BUILDDIR)/libbsddb.so" $? $(LNK_LDFLAGS); \
-	else \
-	    "$(CC)" $(LDFLAGS) $(DFT_SHAREDLDFLAGS) \
-	      -o "$(BUILDDIR)/libbsddb.so" $(LIBBSDDB_OBJS) $(LNK_LDFLAGS); \
-	fi
+$(BUILDDIR)/libbsddb.a: $(LIBBSDDB_OBJS)
+	"$(AR)" $(ARFLAGS) "$(BUILDDIR)/libbsddb.a" $?; \
+$(BUILDDIR)/libbsddb.so: $(LIBBSDDB_OBJS)
+	"$(CC)" $(LDFLAGS) $(DFT_SHAREDLDFLAGS) \
+	  -o "$(BUILDDIR)/libbsddb.so" $? $(LNK_LDFLAGS); \
 $(BUILDDIR)/libbsddb.pc: libbsddb.pc.in
 	if [ "$(ENABLE_DYNAMIC)" = "true" ] \
 	  || [ "$(ENABLE_STATIC)" != "true" ]; \
