@@ -1,3 +1,29 @@
+1.85 -> 1.86
+	all:	Major portability refactor for HyperbolaBSD
+		and free software; removed OpenBSD dependencies,
+		unified codebase for multiple systems.
+		- Simplified headers, removed non-portable includes,
+		- Explicit license headers
+		  (BSD-3-Clause or CC0 depending on file),
+		- Renamed and clarified types (u_int* -> uint*),
+		  more explicit flags,
+		- Reorganization of internal and public files,
+		- Improvements to Makefile: multiplatform support,
+		  new public domain Makefile, configuration options,
+		- Internal function abstraction, no functional changes
+		  in algorithms,
+		- Special handling support for HyperbolaBSD
+		  (e.g. __HyperbolaBSD__),
+		- Modernized build scripts, removed Makefile.inc,
+		- Moved internal modules to internal/ subdirectory,
+		- Added architecture/OS autodetection in Makefile,
+		- Minor adjustments and cleanups.
+	btree/hash/db/recno:
+		Cleaned up and normalized code (naming, types, flags),
+		Updated copyright and license headers,
+		README files updated for POSIX portability
+		and license changes.
+
 1.84 -> 1.85
 	recno:	#ifdef out use of mmap, it's not portable enough.
 

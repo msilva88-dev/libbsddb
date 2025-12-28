@@ -79,7 +79,7 @@ SHRDGRP = $(DIROWN)
 SHRDPERM = $(DIRPERM)
 VER = $(VER_MAJOR).$(VER_MINOR).$(VER_REV)
 VER_MAJOR = 1
-VER_MINOR = 85
+VER_MINOR = 86
 VER_REV = 0
 
 # Number of CPU threads for parallel compilation
